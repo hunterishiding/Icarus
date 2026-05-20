@@ -637,15 +637,17 @@ saveCfg(CFG);
 // Clears ALL users and ALL data from Supabase so every install starts blank.
 async function runOneTimeWipeIfNeeded(){
   if(localStorage.getItem(WIPE_VERSION)==='done')return;
+  // Only wipe if no users exist yet — so new devices don't nuke existing accounts
   try{
-    // Delete every row in myflow
-    await sbFetch('/rest/v1/myflow?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}});
-  }catch(e){/* table may be empty or not exist yet */}
-  try{
-    // Delete every row in icarus_users
-    await sbFetch('/rest/v1/icarus_users?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}});
-  }catch(e){/* silent */}
-  // Also clear any locally stored user data
+    const existing=await sbFetch('/rest/v1/icarus_users?select=id&limit=1');
+    if(existing&&existing.length>0){
+      localStorage.setItem(WIPE_VERSION,'done');
+      return;
+    }
+  }catch(e){}
+  // No users found — safe to wipe orphaned data
+  try{ await sbFetch('/rest/v1/myflow?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}}); }catch(e){}
+  try{ await sbFetch('/rest/v1/icarus_users?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}}); }catch(e){}
   localStorage.removeItem(LS);
   D=defaultData();
   localStorage.setItem(WIPE_VERSION,'done');
