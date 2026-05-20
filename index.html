@@ -332,7 +332,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .ob-welcome{text-align:center;padding:12px 0 20px}
 .ob-welcome-logo{font-family:'Playfair Display',serif;font-size:52px;font-style:italic;color:var(--accent);margin-bottom:8px;line-height:1.1}
 .ob-welcome-sub{font-family:'Playfair Display',serif;font-size:16px;color:var(--text2);font-style:italic;margin-bottom:32px;line-height:1.6}
-.ob-welcome-name{font-size:22px;font-weight:500;color:var(--text);margin-bottom:4px}
+.ob-welcome-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:500;color:var(--text);margin-bottom:4px}
 
 /* ── Admin ── */
 .announce-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -629,8 +629,27 @@ function defaultData(name,username){
 }
 // ── Hard-coded Supabase config ────────────────────────────────────────────
 const HARDCODED_CFG={url:'https://tfsawkogkpqhrsixpvcq.supabase.co',key:'sb_publishable_Oyd2c76wSo14L0SUCS2Yqw_9A-MGXwi'};
+const WIPE_VERSION='wipe_v1'; // bump this string to trigger another wipe
 let D=loadLocal(), CFG=HARDCODED_CFG, syncMode=true, syncTimer=null, currentPage='home';
 saveCfg(CFG);
+
+// ── One-time database wipe ────────────────────────────────────────────────
+// Clears ALL users and ALL data from Supabase so every install starts blank.
+async function runOneTimeWipeIfNeeded(){
+  if(localStorage.getItem(WIPE_VERSION)==='done')return;
+  try{
+    // Delete every row in myflow
+    await sbFetch('/rest/v1/myflow?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+  }catch(e){/* table may be empty or not exist yet */}
+  try{
+    // Delete every row in icarus_users
+    await sbFetch('/rest/v1/icarus_users?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+  }catch(e){/* silent */}
+  // Also clear any locally stored user data
+  localStorage.removeItem(LS);
+  D=defaultData();
+  localStorage.setItem(WIPE_VERSION,'done');
+}
 
 // ── Utils ─────────────────────────────────────────────────────────────────
 function uid(){return Math.random().toString(36).slice(2,10);}
@@ -810,6 +829,7 @@ async function showLockScreen(){
   drawLoginArt();
   const content=document.getElementById('lock-content');
   content.innerHTML=`<div style="text-align:center;padding:20px 0;color:var(--text3);font-family:var(--font-mono);font-size:12px">Loading…</div>`;
+  await runOneTimeWipeIfNeeded();
   await loadUsers();
   renderUserPicker();
 }
@@ -817,12 +837,11 @@ async function showLockScreen(){
 function drawLoginArt(){
   const art=document.getElementById('login-art');
   if(!art)return;
-  // Gruvbox retro stripes — same palette as the wallpaper
   const stripes=[
-    {color:'#5a7a4a',top:'52%',h:'9%'},   // green
-    {color:'#6b9ab8',top:'61%',h:'7%'},   // blue
-    {color:'#c09030',top:'68%',h:'8%'},   // yellow/orange
-    {color:'#cc3333',top:'76%',h:'8%'},   // red
+    {color:'#5a7a4a',top:'52%',h:'9%'},
+    {color:'#6b9ab8',top:'61%',h:'7%'},
+    {color:'#c09030',top:'68%',h:'8%'},
+    {color:'#cc3333',top:'76%',h:'8%'},
   ];
   art.innerHTML=stripes.map(s=>`<div style="position:absolute;left:0;right:0;top:${s.top};height:${s.h};background:${s.color};opacity:.22;"></div>`).join('');
 }
@@ -830,7 +849,6 @@ function drawLoginArt(){
 function renderUserPicker(){
   const content=document.getElementById('lock-content');
   if(allUsers.length===0){
-    // No users yet — go straight to register
     showRegisterScreen();
     return;
   }
@@ -880,22 +898,31 @@ async function submitLogin(userId, username, displayName){
   }catch(e){err.textContent='Connection error. Try again.';err.style.color='#f87171';}
 }
 
-// ── Screen: register new user (step 1 of 4) ──────────────────────────────
-let obData={name:'',username:'',pwHash:'',accentIdx:0,theme:'gruvbox',font:'DM Sans'};
+// ═══════════════════════════════════════════════════════════════════════════
+// ── Onboarding: fully-fledged 5-step personalization flow ─────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+let obData={name:'',username:'',pwHash:'',accentIdx:0,theme:'gruvbox',font:'DM Sans',pfp:'',pfpBase64:''};
+
+function _obSteps(active){
+  // 5 steps: 0=credentials 1=avatar 2=accent 3=theme 4=font  (welcome is after submit)
+  return `<div class="ob-steps">${[0,1,2,3,4].map(i=>`<div class="ob-dot${i<active?' done':i===active?' active':''}"></div>`).join('')}</div>`;
+}
 
 function showRegisterScreen(){
   const canGoBack=allUsers.length>0;
-  obData={name:'',username:'',pwHash:'',accentIdx:0,theme:'gruvbox',font:'DM Sans'};
+  obData={name:'',username:'',pwHash:'',accentIdx:0,theme:'gruvbox',font:'DM Sans',pfp:'',pfpBase64:''};
+  // Apply default gruvbox theme for onboarding
+  document.body.className='theme-gruvbox';
   showObStep1(canGoBack);
 }
 
-// Step 1: credentials
+// ── Step 1: Credentials ───────────────────────────────────────────────────
 function showObStep1(canGoBack){
   const content=document.getElementById('lock-content');
   content.innerHTML=`
-    <div class="ob-steps"><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
-    <div class="setup-title" style="text-align:center;margin-bottom:4px">Create account</div>
-    <div class="setup-sub" style="text-align:center;margin-bottom:18px">No email needed. Just pick a name and password.</div>
+    ${_obSteps(0)}
+    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Join icarus</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:18px">No email needed. Pick a name and password.</div>
     <div class="setup-label">Display name</div>
     <input class="setup-input" type="text" id="reg-name" placeholder="Your name" autocomplete="off" maxlength="32" value="${esc(obData.name)}">
     <div class="setup-label">Username</div>
@@ -928,68 +955,104 @@ async function obStep1Next(){
   showObStep2();
 }
 
-// Step 2: accent color
+// ── Step 2: Avatar / Profile Picture ─────────────────────────────────────
 function showObStep2(){
   const content=document.getElementById('lock-content');
-  const swatches=ACCENTS.map((a,i)=>`
-    <div class="ob-swatch${i===obData.accentIdx?' active':''}" style="background:${a.hex}" onclick="obPickAccent(${i},this)" title="${a.label}"></div>`).join('');
+  const initials=(obData.name||'?')[0].toUpperCase();
   content.innerHTML=`
-    <div class="ob-steps"><div class="ob-dot done"></div><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
-    <div class="setup-title" style="text-align:center;margin-bottom:4px">Pick your accent</div>
-    <div class="setup-sub" style="text-align:center;margin-bottom:20px">This color shows up on buttons, highlights, and your logo.</div>
-    <div class="ob-swatch-grid">${swatches}</div>
+    ${_obSteps(1)}
+    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Add a photo</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:18px">Optional — put a face to the name. You can always change this later.</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:22px">
+      <div id="ob-pfp-preview" onclick="document.getElementById('ob-pfp-input').click()" style="width:88px;height:88px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:500;color:var(--accent);cursor:pointer;overflow:hidden;transition:border-color .2s;flex-shrink:0">${obData.pfpBase64?`<img src="${obData.pfpBase64}" style="width:100%;height:100%;object-fit:cover">`:`<span>${initials}</span>`}</div>
+      <input type="file" id="ob-pfp-input" accept="image/*" style="display:none" onchange="obHandlePfp(event)">
+      <div style="display:flex;gap:8px">
+        <button class="pfp-btn" onclick="document.getElementById('ob-pfp-input').click()">Upload photo</button>
+        ${obData.pfpBase64?`<button class="pfp-btn" onclick="obClearPfp()">Remove</button>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Click the circle to upload</div>
+    </div>
     <button class="setup-btn" onclick="showObStep3()">Continue →</button>
+    <button class="setup-skip" onclick="showObStep3()">Skip for now</button>
     <div class="back-link" onclick="showObStep1(allUsers.length>0)">← Back</div>`;
+}
+
+function obHandlePfp(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    obData.pfpBase64=e.target.result;
+    const prev=document.getElementById('ob-pfp-preview');
+    if(prev)prev.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    // Refresh to show Remove button
+    showObStep2();
+  };
+  r.readAsDataURL(f);ev.target.value='';
+}
+
+function obClearPfp(){
+  obData.pfpBase64='';
+  showObStep2();
+}
+
+// ── Step 3: Accent color ──────────────────────────────────────────────────
+function showObStep3(){
+  const content=document.getElementById('lock-content');
+  const swatches=ACCENTS.map((a,i)=>`
+    <div class="ob-swatch${i===obData.accentIdx?' active':''}" style="background:${a.hex}" onclick="obPickAccent(${i},this)"></div>`).join('');
+  content.innerHTML=`
+    ${_obSteps(2)}
+    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Pick your accent</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:20px">This color shows up on buttons, highlights, and your logo. You can always change it later.</div>
+    <div class="ob-swatch-grid">${swatches}</div>
+    <div id="accent-preview" style="text-align:center;font-size:13px;color:var(--text3);font-family:var(--font-mono);margin-bottom:16px;min-height:18px"></div>
+    <button class="setup-btn" onclick="showObStep4()">Continue →</button>
+    <div class="back-link" onclick="showObStep2()">← Back</div>`;
 }
 
 function obPickAccent(idx,el){
   obData.accentIdx=idx;
   document.querySelectorAll('.ob-swatch').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
-  // Live preview
   const a=ACCENTS[idx];
   document.documentElement.style.setProperty('--accent',a.hex);
   document.documentElement.style.setProperty('--accent2',a.dark);
   document.documentElement.style.setProperty('--accent-dim',a.dim);
 }
 
-// Step 3: theme + font
+// ── Step 4: Theme ─────────────────────────────────────────────────────────
 const OB_THEMES=[
-  {id:'gruvbox',label:'Gruvbox',dots:['#282828','#ebdbb2','#d79921']},
-  {id:'dark',label:'Dark',dots:['#0f0f11','#f0eff4','#8b7cf8']},
-  {id:'midnight',label:'Midnight',dots:['#080b14','#e8eeff','#6b9ab8']},
-  {id:'warm',label:'Warm',dots:['#12100e','#f5f0e8','#c09030']},
-  {id:'light',label:'Light',dots:['#f5f4f7','#1a1820','#8b7cf8']},
-  {id:'minimal',label:'Minimal',dots:['#fafaf8','#1c1b18','#665c54']},
+  {id:'gruvbox',label:'Gruvbox',dots:['#282828','#ebdbb2','#d79921'],desc:'warm retro'},
+  {id:'dark',label:'Dark',dots:['#0f0f11','#f0eff4','#8b7cf8'],desc:'clean dark'},
+  {id:'midnight',label:'Midnight',dots:['#080b14','#e8eeff','#6b9ab8'],desc:'deep blue'},
+  {id:'warm',label:'Warm',dots:['#12100e','#f5f0e8','#c09030'],desc:'cozy amber'},
+  {id:'light',label:'Light',dots:['#f5f4f7','#1a1820','#8b7cf8'],desc:'crisp light'},
+  {id:'minimal',label:'Minimal',dots:['#fafaf8','#1c1b18','#665c54'],desc:'pure focus'},
 ];
 const OB_FONTS=[
-  {id:'DM Sans',label:'DM Sans'},
-  {id:'Space Grotesk',label:'Space Grotesk'},
-  {id:'Sora',label:'Sora'},
-  {id:'Outfit',label:'Outfit'},
-  {id:'Inter',label:'Inter'},
-  {id:'Playfair Display',label:'Playfair Display'},
+  {id:'DM Sans',label:'DM Sans',desc:'modern & clean'},
+  {id:'Space Grotesk',label:'Space Grotesk',desc:'technical & bold'},
+  {id:'Sora',label:'Sora',desc:'rounded & friendly'},
+  {id:'Outfit',label:'Outfit',desc:'geometric & crisp'},
+  {id:'Inter',label:'Inter',desc:'ubiquitous & clear'},
+  {id:'Playfair Display',label:'Playfair Display',desc:'elegant serif'},
 ];
 
-function showObStep3(){
+function showObStep4(){
   const content=document.getElementById('lock-content');
   const themeCards=OB_THEMES.map(t=>`
     <div class="ob-theme${t.id===obData.theme?' active':''}" onclick="obPickTheme('${t.id}',this)">
       <div class="ob-theme-dots">${t.dots.map(c=>`<div class="ob-theme-dot" style="background:${c}"></div>`).join('')}</div>
       <div class="ob-theme-label">${t.label}</div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">${t.desc}</div>
     </div>`).join('');
-  const fontList=OB_FONTS.map(f=>`
-    <div class="ob-font${f.id===obData.font?' active':''}" style="font-family:'${f.id}'" onclick="obPickFont('${f.id}',this)">${f.label}</div>`).join('');
   content.innerHTML=`
-    <div class="ob-steps"><div class="ob-dot done"></div><div class="ob-dot done"></div><div class="ob-dot active"></div><div class="ob-dot"></div></div>
-    <div class="setup-title" style="text-align:center;margin-bottom:4px">Make it yours</div>
-    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Pick a theme and font.</div>
-    <div class="setup-label">Theme</div>
-    <div class="ob-theme-grid">${themeCards}</div>
-    <div class="setup-label">Font</div>
-    <div class="ob-font-list">${fontList}</div>
-    <button class="setup-btn" onclick="submitRegister()">Create my account →</button>
-    <div class="back-link" onclick="showObStep2()">← Back</div>`;
+    ${_obSteps(3)}
+    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Choose a theme</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Set the mood. Every surface will follow.</div>
+    <div class="ob-theme-grid" style="grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">${themeCards}</div>
+    <button class="setup-btn" onclick="showObStep5()">Continue →</button>
+    <div class="back-link" onclick="showObStep3()">← Back</div>`;
 }
 
 function obPickTheme(id,el){
@@ -999,6 +1062,24 @@ function obPickTheme(id,el){
   document.body.className='theme-'+id;
 }
 
+// ── Step 5: Font ──────────────────────────────────────────────────────────
+function showObStep5(){
+  const content=document.getElementById('lock-content');
+  const fontList=OB_FONTS.map(f=>`
+    <div class="ob-font${f.id===obData.font?' active':''}" style="font-family:'${f.id}'" onclick="obPickFont('${f.id}',this)">
+      <span style="font-size:14px">${f.label}</span>
+      <span style="font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-left:8px">${f.desc}</span>
+    </div>`).join('');
+  content.innerHTML=`
+    ${_obSteps(4)}
+    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Choose a font</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Pick the typeface you'll live with every day.</div>
+    <div class="ob-font-list">${fontList}</div>
+    <div class="lock-err" id="lock-err"></div>
+    <button class="setup-btn" onclick="submitRegister()">Create my account →</button>
+    <div class="back-link" onclick="showObStep4()">← Back</div>`;
+}
+
 function obPickFont(id,el){
   obData.font=id;
   document.querySelectorAll('.ob-font').forEach(o=>o.classList.remove('active'));
@@ -1006,18 +1087,19 @@ function obPickFont(id,el){
   document.body.style.fontFamily=`'${id}', sans-serif`;
 }
 
-// Submit registration then show welcome screen
+// ── Submit registration then show welcome screen ───────────────────────────
 async function submitRegister(){
   const btn=document.querySelector('.setup-btn');
-  if(btn){btn.disabled=true;btn.textContent='Creating…';}
+  if(btn){btn.disabled=true;btn.textContent='Creating your space…';}
   try{
     const newId=uid();
     await sbFetch('/rest/v1/icarus_users',{method:'POST',headers:{'Prefer':'return=minimal'},
-      body:JSON.stringify({id:newId,username:obData.username,display_name:obData.name,pw_hash:obData.pwHash,avatar:''})});
+      body:JSON.stringify({id:newId,username:obData.username,display_name:obData.name,pw_hash:obData.pwHash,avatar:obData.pfpBase64||''})});
     const freshD=defaultData(obData.name,'@'+obData.username);
     freshD.profile.accentIdx=obData.accentIdx;
     freshD.profile.theme=obData.theme;
     freshD.profile.font=obData.font;
+    freshD.profile.pfp=obData.pfpBase64||'';
     await sbFetch('/rest/v1/myflow',{method:'POST',headers:{'Prefer':'return=minimal'},
       body:JSON.stringify({id:'user_'+newId,data:freshD,updated_at:new Date().toISOString()})});
     currentUser={id:newId,username:obData.username,displayName:obData.name};
@@ -1030,18 +1112,26 @@ async function submitRegister(){
   }
 }
 
-// Step 4: Welcome screen (Playfair Display)
+// ── Welcome screen (Playfair Display, icarus-themed) ──────────────────────
 function showObWelcome(){
   const content=document.getElementById('lock-content');
   const firstName=obData.name.split(' ')[0];
+  const accent=ACCENTS[obData.accentIdx]||ACCENTS[0];
+  const pfpHtml=obData.pfpBase64
+    ?`<div style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid ${accent.hex};margin:0 auto 16px;flex-shrink:0"><img src="${obData.pfpBase64}" style="width:100%;height:100%;object-fit:cover"></div>`
+    :`<div style="width:80px;height:80px;border-radius:50%;background:${accent.dim};border:3px solid ${accent.hex};margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:500;color:${accent.hex};font-family:'Playfair Display',serif">${firstName[0].toUpperCase()}</div>`;
   content.innerHTML=`
-    <div class="ob-steps"><div class="ob-dot done"></div><div class="ob-dot done"></div><div class="ob-dot done"></div><div class="ob-dot active"></div></div>
-    <div class="ob-welcome">
-      <div class="ob-welcome-logo">icarus</div>
-      <div class="ob-welcome-name">Welcome, ${esc(firstName)}.</div>
-      <div class="ob-welcome-sub">Your dashboard is ready.<br>The sky is yours to navigate.</div>
+    <div style="text-align:center;padding:8px 0 4px">
+      ${pfpHtml}
+      <div style="font-family:'Playfair Display',serif;font-size:48px;font-style:italic;color:${accent.hex};line-height:1;margin-bottom:12px;letter-spacing:-.01em">icarus</div>
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:500;color:var(--text);margin-bottom:6px">Welcome, ${esc(firstName)}.</div>
+      <div style="font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:8px">
+        Your dashboard is ready.<br>
+        The sky is yours to navigate.
+      </div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:28px;letter-spacing:.06em">tasks · goals · notes · calendar</div>
     </div>
-    <button class="setup-btn" onclick="unlockApp()" style="font-family:'Playfair Display',serif;font-style:italic;font-size:15px">Enter icarus →</button>`;
+    <button class="setup-btn" onclick="unlockApp()" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;letter-spacing:.01em">Enter icarus →</button>`;
 }
 
 function unlockApp(){
@@ -1058,7 +1148,11 @@ function finishSetup(){
 }
 function signOut(){
   if(!confirm('Sign out?'))return;
-  currentUser=null;D=defaultData();saveLocal(D);
+  currentUser=null;
+  D=defaultData();
+  saveLocal(D);
+  // Clear any cached session data
+  localStorage.removeItem(LS);
   document.getElementById('setup-screen').classList.remove('hidden');
   showLockScreen();
 }
