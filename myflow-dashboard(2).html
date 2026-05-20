@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>myflow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@300;400&family=Sora:wght@300;400;500&family=Outfit:wght@300;400;500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#8b7cf8;--accent2:#6c5ce7;--accent-dim:rgba(139,124,248,.12);--accent-dim2:rgba(139,124,248,.06);
+  --font:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --radius:12px;--radius-sm:8px;--sidebar-w:220px;--topbar-h:52px;
+}
+.theme-dark{--bg:#0f0f11;--bg2:#161619;--bg3:#1e1e22;--bg4:#26262c;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--text:#f0eff4;--text2:#9895a8;--text3:#5c5968}
+.theme-light{--bg:#f5f4f7;--bg2:#fff;--bg3:#f0eef5;--bg4:#e8e5f0;--border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.13);--text:#1a1820;--text2:#6b6880;--text3:#a09db0}
+.theme-midnight{--bg:#080b14;--bg2:#0d1220;--bg3:#121929;--bg4:#1a2236;--border:rgba(100,140,255,.08);--border2:rgba(100,140,255,.15);--text:#e8eeff;--text2:#8899cc;--text3:#445577}
+.theme-warm{--bg:#12100e;--bg2:#1a1714;--bg3:#221f1b;--bg4:#2c2923;--border:rgba(255,200,100,.07);--border2:rgba(255,200,100,.13);--text:#f5f0e8;--text2:#a09070;--text3:#6a5840}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* Layout */
+#app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--topbar-h) 1fr;height:100vh}
+
+/* Topbar */
+#topbar{grid-column:1/-1;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:10}
+.logo{font-size:18px;font-weight:500;letter-spacing:-.03em;color:var(--text)}
+.logo span{color:var(--accent)}
+.topbar-date{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:6px}
+.topbar-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg4)}
+.topbar-btn.lit{background:var(--accent-dim);border-color:rgba(139,124,248,.3);color:var(--accent)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.sync-dot.synced{background:#4ade80}
+.sync-dot.syncing{background:#fbbf24;animation:pulse 1s infinite}
+.sync-dot.error{background:#f87171}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(139,124,248,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--accent);cursor:pointer}
+
+/* Sidebar */
+#sidebar{background:var(--bg);border-right:1px solid var(--border);padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);color:var(--text3);cursor:pointer;transition:all .15s;font-size:13px;user-select:none}
+.nav-item:hover{background:var(--bg3);color:var(--text2)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent)}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;stroke-width:1.8}
+.nav-spacer{flex:1}
+
+/* Main */
+#main{overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px;transition:padding-right .25s}
+#main.panel-open{padding-right:calc(300px + 24px)}
+.page{display:none;flex-direction:column;gap:20px}
+.page.active{display:flex}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:11px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.card-action{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text3);padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.card-action:hover{border-color:var(--border2);color:var(--text2)}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.stat-label{font-size:11px;font-family:var(--font-mono);color:var(--text3);margin-bottom:6px}
+.stat-val{font-size:26px;font-weight:300;color:var(--text);letter-spacing:-.02em}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Tasks */
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.task-item:last-child{border-bottom:none}
+.task-cb{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.task-cb.done{background:#4ade80;border-color:#4ade80}
+.task-cb.done::after{content:'';display:block;width:6px;height:4px;border-left:1.5px solid #0a1a0a;border-bottom:1.5px solid #0a1a0a;transform:rotate(-45deg) translate(.5px,-.5px)}
+.task-body{flex:1;min-width:0}
+.task-text{font-size:13px;color:var(--text);line-height:1.4}
+.task-text.done{color:var(--text3);text-decoration:line-through}
+.task-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.tag{font-size:10px;padding:1px 7px;border-radius:20px;font-family:var(--font-mono)}
+.tag-uni{background:var(--accent-dim);color:var(--accent)}
+.tag-proj{background:rgba(45,212,191,.1);color:#2dd4bf}
+.tag-personal{background:rgba(251,191,36,.1);color:#fbbf24}
+.tag-health{background:rgba(74,222,128,.1);color:#4ade80}
+.task-due{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.task-due.overdue{color:#f87171}
+.task-del{background:none;border:none;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .15s;padding:2px 4px;border-radius:4px;font-size:13px}
+.task-item:hover .task-del{opacity:1}
+.task-del:hover{color:#f87171}
+.add-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.add-row input,.add-row select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s}
+.add-row input:focus,.add-row select:focus{border-color:var(--accent)}
+.add-row input{flex:1;min-width:160px}
+.add-row select option{background:var(--bg3)}
+.btn-add{background:var(--accent-dim);border:1px solid rgba(139,124,248,.3);color:var(--accent);border-radius:var(--radius-sm);padding:7px 14px;font-size:13px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.btn-add:hover{background:rgba(139,124,248,.2)}
+
+/* Calendar */
+.cal-nav{display:flex;align-items:center;gap:10px}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);padding:4px 8px;cursor:pointer;font-size:13px;transition:all .15s}
+.cal-nav-btn:hover{border-color:var(--border2)}
+.cal-month-label{font-size:13px;font-weight:500;color:var(--text);min-width:110px;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:12px}
+.cal-hdr{font-size:10px;font-family:var(--font-mono);color:var(--text3);text-align:center;padding:4px 0}
+.cal-day{font-size:12px;text-align:center;padding:7px 2px;border-radius:var(--radius-sm);color:var(--text3);cursor:pointer;position:relative;transition:all .12s;min-height:32px}
+.cal-day:hover{background:var(--bg3);color:var(--text2)}
+.cal-day.today{background:var(--accent-dim);color:var(--accent);font-weight:500}
+.cal-day.selected{background:var(--accent);color:#fff;font-weight:500}
+.cal-day.other-month{opacity:.3}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);position:absolute;bottom:3px;left:50%;transform:translateX(-50%)}
+.cal-day.today .cal-dot,.cal-day.selected .cal-dot{background:#fff}
+.event-list{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.event-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius-sm)}
+.event-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.event-title{font-size:13px;color:var(--text);flex:1}
+.event-time-label{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.event-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;opacity:0;transition:opacity .15s}
+.event-item:hover .event-del{opacity:1}
+.event-del:hover{color:#f87171}
+
+/* Goals */
+.goal-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.goal-item:last-child{border-bottom:none}
+.goal-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.goal-name{font-size:13px;color:var(--text)}
+.goal-pct{font-size:11px;font-family:var(--font-mono);color:var(--text3)}
+.progress{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.goal-streak{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:4px}
+.goal-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.goal-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);padding:3px 10px;font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.goal-btn:hover{border-color:var(--border2);color:var(--text)}
+.goal-btn.checked{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.2);color:#4ade80}
+
+/* Notes */
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.note-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;cursor:pointer;transition:all .15s;position:relative}
+.note-card:hover{border-color:var(--border2);background:var(--bg4)}
+.note-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.note-preview{font-size:12px;color:var(--text3);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.note-date{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:8px}
+.note-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;opacity:0;transition:opacity .15s}
+.note-card:hover .note-del{opacity:1}
+.note-del:hover{color:#f87171}
+
+/* Projects */
+.project-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:all .15s}
+.project-card:hover{border-color:var(--border2)}
+.project-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.project-name{font-size:14px;font-weight:500;color:var(--text)}
+.project-status{font-size:10px;font-family:var(--font-mono);padding:2px 8px;border-radius:20px}
+.status-active{background:rgba(45,212,191,.1);color:#2dd4bf}
+.status-paused{background:rgba(251,191,36,.1);color:#fbbf24}
+.status-done{background:rgba(74,222,128,.1);color:#4ade80}
+.project-desc{font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.5}
+.project-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px;font-family:var(--font-mono)}
+.project-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px}
+.project-del:hover{color:#f87171}
+
+/* Settings panel */
+#settings-panel{position:fixed;top:var(--topbar-h);right:0;bottom:0;width:300px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:50;transform:translateX(100%);transition:transform .25s ease}
+#settings-panel.open{transform:translateX(0)}
+.settings-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.settings-title{font-size:13px;font-weight:500;color:var(--text)}
+.settings-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px}
+.settings-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:20px}
+.setting-group{display:flex;flex-direction:column;gap:8px}
+.setting-label{font-size:10px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.setting-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:100%;transition:border-color .15s}
+.setting-input:focus{border-color:var(--accent)}
+.setting-input-small{font-size:11px;font-family:var(--font-mono)}
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap}
+.color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;transition:transform .15s;border:2px solid transparent}
+.color-swatch:hover{transform:scale(1.1)}
+.color-swatch.active{border-color:var(--text)}
+.theme-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme-opt{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;cursor:pointer;transition:all .15s;text-align:center;font-size:12px;color:var(--text2)}
+.theme-opt:hover{border-color:var(--border2);color:var(--text)}
+.theme-opt.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.font-options{display:flex;flex-direction:column;gap:6px}
+.font-opt{border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;cursor:pointer;transition:all .15s;font-size:13px;color:var(--text2)}
+.font-opt:hover{border-color:var(--border2);color:var(--text)}
+.font-opt.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.home-toggles{display:flex;flex-direction:column;gap:8px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between}
+.toggle-label{font-size:13px;color:var(--text2)}
+.toggle{width:36px;height:20px;background:var(--bg4);border-radius:10px;cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:19px}
+.settings-footer{padding:14px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.settings-save{background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;padding:9px;font-size:13px;cursor:pointer;font-family:var(--font);transition:background .15s}
+.settings-save:hover{background:var(--accent2)}
+.sync-status-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);font-family:var(--font-mono);padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm)}
+
+/* Supabase setup screen */
+#setup-screen{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+#setup-screen.hidden{display:none}
+.setup-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:32px;width:480px;max-width:100%}
+.setup-logo{font-size:24px;font-weight:500;color:var(--text);margin-bottom:4px}.setup-logo span{color:var(--accent)}
+.setup-subtitle{font-size:13px;color:var(--text3);margin-bottom:28px}
+.setup-label{font-size:11px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.setup-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--font-mono);font-size:12px;outline:none;transition:border-color .15s;margin-bottom:16px}
+.setup-input:focus{border-color:var(--accent)}
+.setup-btn{width:100%;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;padding:11px;font-size:14px;cursor:pointer;font-family:var(--font);font-weight:500;transition:background .15s;margin-bottom:10px}
+.setup-btn:hover{background:var(--accent2)}
+.setup-skip{width:100%;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text3);padding:9px;font-size:13px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.setup-skip:hover{border-color:var(--border2);color:var(--text2)}
+.setup-steps{margin-bottom:24px;display:flex;flex-direction:column;gap:8px}
+.setup-step-row{display:flex;gap:10px;align-items:flex-start}
+.setup-step-num{width:20px;height:20px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:10px;font-family:var(--font-mono);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.setup-step-text{font-size:12px;color:var(--text2);line-height:1.6}
+.setup-step-text a{color:var(--accent);text-decoration:none}
+.setup-step-text code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-family:var(--font-mono);font-size:11px;color:var(--text)}
+.setup-error{font-size:12px;color:#f87171;margin-bottom:10px;display:none}
+
+/* Claude panel */
+#claude-panel{width:300px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;position:fixed;right:0;top:var(--topbar-h);bottom:0;transform:translateX(100%);transition:transform .25s ease;z-index:40}
+#claude-panel.open{transform:translateX(0)}
+.claude-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.claude-title{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px}
+.claude-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.claude-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px}
+.claude-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg-ai{background:var(--bg3);border-radius:4px 12px 12px 12px;padding:9px 11px;font-size:12px;color:var(--text);line-height:1.55;max-width:95%;border:1px solid var(--border);white-space:pre-wrap}
+.msg-user{background:var(--accent-dim);border:1px solid rgba(139,124,248,.2);border-radius:12px 4px 12px 12px;padding:9px 11px;font-size:12px;color:var(--text);line-height:1.55;max-width:95%;align-self:flex-end}
+.claude-quick{padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border)}
+.quick-label{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.quick-chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 9px;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.claude-input-row{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end}
+#claude-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);font-family:var(--font);font-size:12px;resize:none;outline:none;line-height:1.5;max-height:80px;transition:border-color .15s}
+#claude-input:focus{border-color:var(--accent)}
+.send-btn{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.send-btn:hover{background:var(--accent2)}
+.send-btn svg{width:14px;height:14px;fill:#fff}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;max-width:380px}
+#toast.show{opacity:1;pointer-events:auto}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:#fbbf24;flex-shrink:0}
+.toast-close{background:none;border:none;color:var(--text3);cursor:pointer;margin-left:8px;font-size:14px}
+
+/* Modal */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center}
+#modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:480px;max-width:95vw}
+.modal-title{font-size:15px;font-weight:500;color:var(--text);margin-bottom:16px}
+.modal input,.modal textarea,.modal select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;margin-bottom:10px;transition:border-color .15s}
+.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--accent)}
+.modal textarea{resize:vertical;min-height:80px}
+.modal select option{background:var(--bg3)}
+.modal-row{display:flex;gap:8px}
+.modal-row input,.modal-row select{flex:1}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+.btn-cancel{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);padding:8px 16px;font-size:13px;cursor:pointer;font-family:var(--font)}
+.btn-save{background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;padding:8px 18px;font-size:13px;cursor:pointer;font-family:var(--font);transition:background .15s}
+.btn-save:hover{background:var(--accent2)}
+
+@media(max-width:700px){
+  :root{--sidebar-w:0px}
+  #sidebar{display:none}
+  #app{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  #claude-panel,#settings-panel{width:100%}
+  #main.panel-open{padding-right:24px}
+}
+</style>
+</head>
+<body class="theme-dark">
+
+<!-- Supabase Setup Screen -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <div class="setup-logo">my<span>flow</span></div>
+    <div class="setup-subtitle">Connect Supabase for automatic sync across all your devices</div>
+    <div class="setup-steps">
+      <div class="setup-step-row"><div class="setup-step-num">1</div><div class="setup-step-text">Go to <a href="https://supabase.com" target="_blank">supabase.com</a> → create a free project</div></div>
+      <div class="setup-step-row"><div class="setup-step-num">2</div><div class="setup-step-text">In <strong>SQL Editor</strong>, run:<br><code>create table myflow (id text primary key, data jsonb not null, updated_at timestamptz default now()); insert into myflow (id, data) values ('main', '{}');</code></div></div>
+      <div class="setup-step-row"><div class="setup-step-num">3</div><div class="setup-step-text">Go to <strong>Project Settings → API</strong> and paste your URL and anon key below</div></div>
+    </div>
+    <div class="setup-label">Supabase Project URL</div>
+    <input class="setup-input" id="setup-url" placeholder="https://xxxxxxxxxxx.supabase.co">
+    <div class="setup-label">Supabase Anon Key</div>
+    <input class="setup-input" id="setup-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+    <div class="setup-error" id="setup-error"></div>
+    <button class="setup-btn" onclick="connectSupabase()">Connect & sync</button>
+    <button class="setup-skip" onclick="skipSetup()">Skip for now (local only)</button>
+  </div>
+</div>
+
+<div id="app">
+<div id="topbar">
+  <div class="topbar-left">
+    <div class="logo" id="logo-el">my<span>flow</span></div>
+    <div class="topbar-date" id="topbar-date"></div>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-btn" id="sync-btn" onclick="manualSync()" title="Sync status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Local</span>
+    </button>
+    <button class="topbar-btn lit" onclick="toggleClaude()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Ask Claude
+    </button>
+    <button class="topbar-btn" onclick="toggleSettings()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Personalize
+    </button>
+    <div class="avatar" id="avatar-el">H</div>
+  </div>
+</div>
+
+<div id="sidebar">
+  <div class="nav-item active" onclick="showPage('home',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</div>
+  <div class="nav-item" onclick="showPage('tasks',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tasks</div>
+  <div class="nav-item" onclick="showPage('calendar',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</div>
+  <div class="nav-item" onclick="showPage('notes',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Notes</div>
+  <div class="nav-item" onclick="showPage('goals',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</div>
+  <div class="nav-item" onclick="showPage('projects',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Projects</div>
+  <div class="nav-spacer"></div>
+</div>
+
+<div id="main">
+  <div id="page-home" class="page active">
+    <div class="stats-row" id="stats-row"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="home-grid">
+      <div class="card" id="home-tasks-card"><div class="card-header"><div class="card-title">Today's tasks</div><button class="card-action" onclick="showPage('tasks',null)">See all →</button></div><div id="home-tasks"></div></div>
+      <div class="card" id="home-events-card"><div class="card-header"><div class="card-title">Upcoming events</div><button class="card-action" onclick="showPage('calendar',null)">Calendar →</button></div><div id="home-events"></div></div>
+    </div>
+    <div class="card" id="home-goals-card"><div class="card-header"><div class="card-title">Goals overview</div></div><div id="home-goals"></div></div>
+  </div>
+
+  <div id="page-tasks" class="page">
+    <div class="card">
+      <div class="card-header"><div class="card-title">All tasks</div></div>
+      <div id="tasks-list"></div>
+      <div class="add-row">
+        <input id="task-input" placeholder="New task…" onkeydown="if(event.key==='Enter')addTask()">
+        <select id="task-tag"><option value="uni">uni</option><option value="proj">project</option><option value="personal">personal</option><option value="health">health</option></select>
+        <input id="task-due" type="date" style="width:140px">
+        <button class="btn-add" onclick="addTask()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-calendar" class="page">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="card">
+        <div class="card-header">
+          <div class="cal-nav"><button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button><div class="cal-month-label" id="cal-month-label"></div><button class="cal-nav-btn" onclick="changeMonth(1)">›</button></div>
+          <button class="card-action" onclick="openEventModal()">+ Event</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="card"><div class="card-header"><div class="card-title" id="cal-sel-label">Events this month</div></div><div class="event-list" id="event-list"></div></div>
+    </div>
+  </div>
+
+  <div id="page-notes" class="page">
+    <div class="card"><div class="card-header"><div class="card-title">Notes</div><button class="card-action" onclick="openNoteModal()">+ Note</button></div><div class="notes-grid" id="notes-grid"></div></div>
+  </div>
+
+  <div id="page-goals" class="page">
+    <div class="card"><div class="card-header"><div class="card-title">Habits & goals</div><button class="card-action" onclick="openGoalModal()">+ Goal</button></div><div id="goals-list"></div></div>
+  </div>
+
+  <div id="page-projects" class="page">
+    <div class="card"><div class="card-header"><div class="card-title">Projects</div><button class="card-action" onclick="openProjectModal()">+ Project</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:4px" id="projects-grid"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- Settings Panel -->
+<div id="settings-panel">
+  <div class="settings-header"><div class="settings-title">Personalize</div><button class="settings-close" onclick="toggleSettings()">✕</button></div>
+  <div class="settings-body">
+    <div class="setting-group"><div class="setting-label">Your name</div><input class="setting-input" id="s-name" placeholder="Hunter" maxlength="20"></div>
+    <div class="setting-group"><div class="setting-label">App name</div><input class="setting-input" id="s-appname" placeholder="myflow" maxlength="16"></div>
+    <div class="setting-group"><div class="setting-label">Accent color</div><div class="color-swatches" id="color-swatches"></div></div>
+    <div class="setting-group"><div class="setting-label">Theme</div><div class="theme-options"><div class="theme-opt" data-theme="dark" onclick="pickTheme('dark',this)">Dark</div><div class="theme-opt" data-theme="light" onclick="pickTheme('light',this)">Light</div><div class="theme-opt" data-theme="midnight" onclick="pickTheme('midnight',this)">Midnight</div><div class="theme-opt" data-theme="warm" onclick="pickTheme('warm',this)">Warm</div></div></div>
+    <div class="setting-group"><div class="setting-label">Font</div><div class="font-options"><div class="font-opt" data-font="DM Sans" onclick="pickFont('DM Sans',this)" style="font-family:'DM Sans'">DM Sans — clean & modern</div><div class="font-opt" data-font="Sora" onclick="pickFont('Sora',this)" style="font-family:'Sora'">Sora — rounded & friendly</div><div class="font-opt" data-font="Outfit" onclick="pickFont('Outfit',this)" style="font-family:'Outfit'">Outfit — geometric</div><div class="font-opt" data-font="Space Grotesk" onclick="pickFont('Space Grotesk',this)" style="font-family:'Space Grotesk'">Space Grotesk — technical</div></div></div>
+    <div class="setting-group"><div class="setting-label">Home sections</div><div class="home-toggles"><div class="toggle-row"><span class="toggle-label">Stats bar</span><button class="toggle on" id="t-stats" onclick="toggleSection('stats',this)"></button></div><div class="toggle-row"><span class="toggle-label">Today's tasks</span><button class="toggle on" id="t-tasks" onclick="toggleSection('tasks',this)"></button></div><div class="toggle-row"><span class="toggle-label">Upcoming events</span><button class="toggle on" id="t-events" onclick="toggleSection('events',this)"></button></div><div class="toggle-row"><span class="toggle-label">Goals overview</span><button class="toggle on" id="t-goals" onclick="toggleSection('goals',this)"></button></div></div></div>
+    <div class="setting-group">
+      <div class="setting-label">Supabase (sync)</div>
+      <div class="sync-status-bar"><div class="sync-dot" id="settings-sync-dot"></div><span id="settings-sync-text">Not connected</span></div>
+      <button class="btn-cancel" style="width:100%;margin-top:8px;font-size:12px" onclick="showSetup()">Change connection</button>
+    </div>
+  </div>
+  <div class="settings-footer"><button class="settings-save" onclick="saveSettings()">Save changes</button></div>
+</div>
+
+<!-- Claude Panel -->
+<div id="claude-panel">
+  <div class="claude-header"><div class="claude-title"><div class="claude-dot"></div>Claude</div><button class="claude-close" onclick="toggleClaude()">✕</button></div>
+  <div class="claude-msgs" id="claude-msgs"><div class="msg-ai">Hey! Add tasks, events, notes, or goals by typing naturally. For deeper help I'll open Claude.ai with your full dashboard context. What's up?</div></div>
+  <div class="claude-quick"><div class="quick-label">Quick prompts</div><div class="quick-chips"><div class="chip" onclick="fillPrompt('What should I focus on today?')">Focus today</div><div class="chip" onclick="fillPrompt('Summarize my week')">Week summary</div><div class="chip" onclick="fillPrompt('open claude.ai')">Full chat ↗</div></div></div>
+  <div class="claude-input-row"><textarea id="claude-input" rows="1" placeholder="Ask or add anything…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendClaude()}"></textarea><button class="send-btn" onclick="sendClaude()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg></button></div>
+</div>
+
+<div id="toast"><div class="toast-dot"></div><span id="toast-text"></span><button class="toast-close" onclick="hideToast()">✕</button></div>
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal-body"></div></div>
+
+<script>
+// ── Accent palette ─────────────────────────────────────────────────────────
+const ACCENTS=[
+  {hex:'#8b7cf8',dim:'rgba(139,124,248,.12)',dark:'#6c5ce7'},
+  {hex:'#f472b6',dim:'rgba(244,114,182,.12)',dark:'#db2777'},
+  {hex:'#34d399',dim:'rgba(52,211,153,.12)', dark:'#059669'},
+  {hex:'#60a5fa',dim:'rgba(96,165,250,.12)', dark:'#2563eb'},
+  {hex:'#fb923c',dim:'rgba(251,146,60,.12)', dark:'#ea580c'},
+  {hex:'#facc15',dim:'rgba(250,204,21,.12)', dark:'#ca8a04'},
+  {hex:'#f87171',dim:'rgba(248,113,113,.12)',dark:'#dc2626'},
+  {hex:'#a3e635',dim:'rgba(163,230,53,.12)', dark:'#65a30d'},
+];
+
+// ── Local store ───────────────────────────────────────────────────────────
+const LS='myflow_v3';
+const LS_CFG='myflow_cfg';
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS))||defaultData();}catch(e){return defaultData();}}
+function saveLocal(d){localStorage.setItem(LS,JSON.stringify(d));}
+function loadCfg(){try{return JSON.parse(localStorage.getItem(LS_CFG))||{};}catch(e){return {};}}
+function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
+
+function defaultData(){
+  const td=today();
+  return {
+    settings:{name:'Hunter',appname:'myflow',theme:'dark',font:'DM Sans',accentIdx:0,sections:{stats:true,tasks:true,events:true,goals:true}},
+    tasks:[{id:uid(),text:'Explore your new dashboard',tag:'personal',due:td,done:false},{id:uid(),text:'Add your first real task',tag:'personal',due:'',done:false}],
+    events:[{id:uid(),title:'First day of university',date:'2026-08-25',time:'08:00',color:'#8b7cf8'}],
+    notes:[{id:uid(),title:'Welcome to myflow!',body:'This is your personal dashboard. Personalize it, connect Supabase for auto-sync, then host it free on Vercel.',created:td}],
+    goals:[{id:uid(),name:'Read 20 min / day',color:'#8b7cf8',progress:60,streak:8,lastChecked:''},{id:uid(),name:'Exercise 3x / week',color:'#34d399',progress:66,streak:3,lastChecked:''}],
+    projects:[{id:uid(),name:'Arduino motor controller',desc:'PWM ramping with direct analogWrite/digitalWrite control.',status:'active',progress:45}],
+  };
+}
+
+let D=loadLocal();
+let CFG=loadCfg(); // {url, key} for supabase
+
+// ── Utils ─────────────────────────────────────────────────────────────────
+function uid(){return Math.random().toString(36).slice(2,10);}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtDate(d){if(!d)return '';const[y,m,day]=d.split('-');return `${parseInt(day)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]}`;}
+function isOverdue(d){return d&&d<today();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── Supabase sync ─────────────────────────────────────────────────────────
+let syncMode=false; // true = supabase connected
+let syncTimer=null;
+let pendingSave=false;
+
+function setSyncUI(state){
+  // state: 'local' | 'syncing' | 'synced' | 'error'
+  const dot=document.getElementById('sync-dot');
+  const lbl=document.getElementById('sync-label');
+  const sdot=document.getElementById('settings-sync-dot');
+  const stxt=document.getElementById('settings-sync-text');
+  dot.className='sync-dot';sdot.className='sync-dot';
+  if(state==='synced'){dot.classList.add('synced');sdot.classList.add('synced');lbl.textContent='Synced';stxt.textContent='Connected & synced';}
+  else if(state==='syncing'){dot.classList.add('syncing');sdot.classList.add('syncing');lbl.textContent='Syncing…';stxt.textContent='Syncing…';}
+  else if(state==='error'){dot.classList.add('error');sdot.classList.add('error');lbl.textContent='Sync error';stxt.textContent='Sync error — check connection';}
+  else{lbl.textContent='Local only';stxt.textContent='Not connected';}
+}
+
+async function sbFetch(path,opts={}){
+  if(!CFG.url||!CFG.key) throw new Error('No config');
+  const url=CFG.url.replace(/\/$/,'')+path;
+  const res=await fetch(url,{...opts,headers:{'Content-Type':'application/json','apikey':CFG.key,'Authorization':'Bearer '+CFG.key,...(opts.headers||{})}});
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  return res.json();
+}
+
+async function pushToSupabase(){
+  if(!syncMode)return;
+  setSyncUI('syncing');
+  try{
+    await sbFetch('/rest/v1/myflow?id=eq.main',{
+      method:'PATCH',
+      body:JSON.stringify({data:D,updated_at:new Date().toISOString()})
+    });
+    setSyncUI('synced');
+  }catch(e){setSyncUI('error');console.error('Sync push error',e);}
+}
+
+async function pullFromSupabase(){
+  if(!syncMode)return;
+  setSyncUI('syncing');
+  try{
+    const rows=await sbFetch('/rest/v1/myflow?id=eq.main&select=data');
+    if(rows&&rows[0]&&rows[0].data&&Object.keys(rows[0].data).length>0){
+      D=rows[0].data;saveLocal(D);
+    }
+    setSyncUI('synced');
+  }catch(e){setSyncUI('error');console.error('Sync pull error',e);}
+}
+
+function schedSave(){
+  saveLocal(D);
+  if(!syncMode)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(pushToSupabase,1200); // debounce 1.2s
+}
+
+async function connectSupabase(){
+  const url=document.getElementById('setup-url').value.trim();
+  const key=document.getElementById('setup-key').value.trim();
+  const err=document.getElementById('setup-error');
+  err.style.display='none';
+  if(!url||!key){err.textContent='Please fill both fields.';err.style.display='block';return;}
+  if(!url.startsWith('https://')){err.textContent='URL should start with https://';err.style.display='block';return;}
+  err.textContent='Testing connection…';err.style.display='block';err.style.color='var(--text3)';
+  try{
+    const res=await fetch(url.replace(/\/$/,'')+'/rest/v1/myflow?id=eq.main&select=data',{headers:{'apikey':key,'Authorization':'Bearer '+key}});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const rows=await res.json();
+    CFG={url,key};saveCfg(CFG);
+    syncMode=true;
+    if(rows&&rows[0]&&rows[0].data&&Object.keys(rows[0].data).length>0){
+      D=rows[0].data;saveLocal(D);
+    } else {
+      await pushToSupabase();
+    }
+    document.getElementById('setup-screen').classList.add('hidden');
+    setSyncUI('synced');
+    applySettings();renderHome();renderCalendar();
+    showToast('Synced! Your dashboard is now live across all devices.');
+    startRealtimeSync();
+  }catch(e){
+    err.textContent='Connection failed. Double-check your URL and key, and make sure the table exists.';
+    err.style.color='#f87171';err.style.display='block';
+  }
+}
+
+function skipSetup(){
+  document.getElementById('setup-screen').classList.add('hidden');
+  setSyncUI('local');
+}
+
+function showSetup(){
+  document.getElementById('setup-url').value=CFG.url||'';
+  document.getElementById('setup-key').value=CFG.key||'';
+  document.getElementById('setup-error').style.display='none';
+  document.getElementById('setup-screen').classList.remove('hidden');
+  if(settingsOpen)toggleSettings();
+}
+
+function startRealtimeSync(){
+  // Poll every 30s to catch changes from other devices
+  setInterval(async()=>{
+    if(syncMode&&!pendingSave) await pullFromSupabase();
+  },30000);
+}
+
+async function manualSync(){
+  if(!syncMode){showSetup();return;}
+  await pullFromSupabase();
+  applySettings();renderPage(currentPage);
+  showToast('Pulled latest data from Supabase.');
+}
+
+// ── Apply settings ────────────────────────────────────────────────────────
+function applySettings(){
+  const s=D.settings||{};
+  document.body.className='theme-'+(s.theme||'dark');
+  document.body.style.fontFamily=`'${s.font||'DM Sans'}', sans-serif`;
+  const a=ACCENTS[s.accentIdx||0];
+  document.documentElement.style.setProperty('--accent',a.hex);
+  document.documentElement.style.setProperty('--accent2',a.dark);
+  document.documentElement.style.setProperty('--accent-dim',a.dim);
+  document.documentElement.style.setProperty('--accent-dim2',a.dim.replace('.12','.06'));
+  const name=s.name||'Hunter';
+  const app=s.appname||'myflow';
+  document.getElementById('logo-el').innerHTML=`${app.slice(0,-1)}<span>${app.slice(-1)}</span>`;
+  document.title=app;
+  document.getElementById('avatar-el').textContent=name[0].toUpperCase();
+  // topbar date
+  const now=new Date();
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('topbar-date').textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  // section visibility
+  const sec=s.sections||{};
+  const sr=document.getElementById('stats-row');if(sr)sr.style.display=sec.stats===false?'none':'grid';
+  const htc=document.getElementById('home-tasks-card');if(htc)htc.style.display=sec.tasks===false?'none':'';
+  const hec=document.getElementById('home-events-card');if(hec)hec.style.display=sec.events===false?'none':'';
+  const hg=document.getElementById('home-goals-card');if(hg)hg.style.display=sec.goals===false?'none':'';
+  const hgrid=document.getElementById('home-grid');if(hgrid)hgrid.style.gridTemplateColumns=(sec.tasks!==false&&sec.events!==false)?'1fr 1fr':'1fr';
+}
+
+// ── Settings panel ────────────────────────────────────────────────────────
+let settingsOpen=false;
+function toggleSettings(){
+  settingsOpen=!settingsOpen;
+  document.getElementById('settings-panel').classList.toggle('open',settingsOpen);
+  if(settingsOpen){populateSettings();if(claudeOpen)toggleClaude();}
+}
+function populateSettings(){
+  const s=D.settings||{};
+  document.getElementById('s-name').value=s.name||'';
+  document.getElementById('s-appname').value=s.appname||'myflow';
+  const sw=document.getElementById('color-swatches');
+  sw.innerHTML=ACCENTS.map((a,i)=>`<div class="color-swatch${(s.accentIdx||0)===i?' active':''}" style="background:${a.hex}" onclick="pickAccent(${i},this)"></div>`).join('');
+  document.querySelectorAll('.theme-opt').forEach(el=>el.classList.toggle('active',el.dataset.theme===(s.theme||'dark')));
+  document.querySelectorAll('.font-opt').forEach(el=>el.classList.toggle('active',el.dataset.font===(s.font||'DM Sans')));
+  const sec=s.sections||{};
+  ['stats','tasks','events','goals'].forEach(k=>{const b=document.getElementById('t-'+k);if(b)b.classList.toggle('on',sec[k]!==false);});
+  // sync status in settings
+  if(syncMode)setSyncUI('synced');else setSyncUI('local');
+}
+function pickAccent(idx,el){D.settings.accentIdx=idx;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');applySettings();}
+function pickTheme(t,el){D.settings.theme=t;document.querySelectorAll('.theme-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');applySettings();}
+function pickFont(f,el){D.settings.font=f;document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');document.body.style.fontFamily=`'${f}', sans-serif`;}
+function toggleSection(k,btn){if(!D.settings.sections)D.settings.sections={};D.settings.sections[k]=!btn.classList.contains('on');btn.classList.toggle('on');applySettings();}
+function saveSettings(){D.settings.name=document.getElementById('s-name').value.trim()||'Hunter';D.settings.appname=document.getElementById('s-appname').value.trim()||'myflow';schedSave();applySettings();toggleSettings();showToast('Settings saved!');}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+let currentPage='home';
+function showPage(name,navEl){
+  currentPage=name;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(navEl)navEl.classList.add('active');
+  else document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.trim().toLowerCase()===name)n.classList.add('active');});
+  renderPage(name);
+}
+function renderPage(name){
+  if(name==='home')renderHome();
+  if(name==='tasks')renderTasks();
+  if(name==='calendar')renderCalendar();
+  if(name==='notes')renderNotes();
+  if(name==='goals')renderGoals();
+  if(name==='projects')renderProjects();
+}
+
+// ── Home ──────────────────────────────────────────────────────────────────
+function renderHome(){
+  const pending=D.tasks.filter(t=>!t.done);
+  const done=D.tasks.filter(t=>t.done).length;
+  const upcoming=D.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+  const streak=D.goals.length?Math.max(...D.goals.map(g=>g.streak)):0;
+  document.getElementById('stats-row').innerHTML=`<div class="stat-card"><div class="stat-label">tasks pending</div><div class="stat-val">${pending.length}</div><div class="stat-sub">${done} done</div></div><div class="stat-card"><div class="stat-label">events ahead</div><div class="stat-val">${upcoming.length}</div><div class="stat-sub">upcoming</div></div><div class="stat-card"><div class="stat-label">best streak</div><div class="stat-val" style="color:var(--accent)">${streak}</div><div class="stat-sub">days</div></div><div class="stat-card"><div class="stat-label">notes</div><div class="stat-val">${D.notes.length}</div><div class="stat-sub">saved</div></div>`;
+  document.getElementById('home-tasks').innerHTML=D.tasks.slice(0,5).map(t=>taskHTML(t,true)).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">No tasks yet</p>';
+  const hevts=D.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
+  document.getElementById('home-events').innerHTML=hevts.map(e=>`<div class="event-item"><div class="event-dot" style="background:${e.color||'var(--accent)'}"></div><div class="event-title">${esc(e.title)}</div><div class="event-time-label">${fmtDate(e.date)}${e.time?' · '+e.time:''}</div></div>`).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">No upcoming events</p>';
+  document.getElementById('home-goals').innerHTML=D.goals.length?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">`+D.goals.map(g=>`<div style="padding:8px 0"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;color:var(--text)">${esc(g.name)}</span><span style="font-size:11px;font-family:var(--font-mono);color:var(--text3)">${g.progress}%</span></div><div class="progress"><div class="progress-fill" style="width:${g.progress}%;background:${g.color}"></div></div><div class="goal-streak">streak: ${g.streak} days</div></div>`).join('')+'</div>':'<p style="font-size:12px;color:var(--text3)">No goals yet</p>';
+  applySettings();
+}
+
+// ── Tasks ─────────────────────────────────────────────────────────────────
+function taskHTML(t,compact){return `<div class="task-item"><div class="task-cb${t.done?' done':''}" onclick="toggleTask('${t.id}')"></div><div class="task-body"><div class="task-text${t.done?' done':''}">${esc(t.text)}</div><div class="task-meta"><span class="tag tag-${t.tag}">${t.tag}</span>${t.due?`<span class="task-due${isOverdue(t.due)&&!t.done?' overdue':''}">${fmtDate(t.due)}</span>`:''}</div></div>${compact?'':`<button class="task-del" onclick="deleteTask('${t.id}')">✕</button>`}</div>`;}
+function renderTasks(){document.getElementById('tasks-list').innerHTML=D.tasks.map(t=>taskHTML(t,false)).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">No tasks yet.</p>';}
+function addTask(){const txt=document.getElementById('task-input').value.trim();if(!txt)return;D.tasks.unshift({id:uid(),text:txt,tag:document.getElementById('task-tag').value,due:document.getElementById('task-due').value,done:false});document.getElementById('task-input').value='';document.getElementById('task-due').value='';schedSave();renderTasks();}
+function toggleTask(id){const t=D.tasks.find(t=>t.id===id);if(t){t.done=!t.done;schedSave();renderTasks();}}
+function deleteTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);schedSave();renderTasks();}
+
+// ── Calendar ──────────────────────────────────────────────────────────────
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let calMonth=new Date().getMonth(),calYear=new Date().getFullYear(),selDay=null;
+function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function renderCalendar(){
+  document.getElementById('cal-month-label').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const first=new Date(calYear,calMonth,1);let dow=first.getDay();if(dow===0)dow=7;
+  const dim=new Date(calYear,calMonth+1,0).getDate();
+  const prev=new Date(calYear,calMonth,0).getDate();
+  const td=today();
+  let h=['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>`<div class="cal-hdr">${x}</div>`).join('');
+  for(let i=dow-1;i>0;i--)h+=`<div class="cal-day other-month">${prev-i+1}</div>`;
+  for(let d=1;d<=dim;d++){const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const hasEv=D.events.some(e=>e.date===ds);h+=`<div class="cal-day${ds===td?' today':''}${ds===selDay?' selected':''}" onclick="selCalDay('${ds}')">${d}${hasEv?'<div class="cal-dot"></div>':''}</div>`;}
+  document.getElementById('cal-grid').innerHTML=h;
+  renderEventList();
+}
+function selCalDay(ds){selDay=ds;document.getElementById('cal-sel-label').textContent=`Events on ${fmtDate(ds)}`;renderCalendar();}
+function renderEventList(){
+  const evts=selDay?D.events.filter(e=>e.date===selDay):D.events.filter(e=>e.date.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)).sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('event-list').innerHTML=evts.map(e=>`<div class="event-item"><div class="event-dot" style="background:${e.color||'var(--accent)'}"></div><div class="event-title">${esc(e.title)}</div><div class="event-time-label">${e.time||fmtDate(e.date)}</div><button class="event-del" onclick="deleteEvent('${e.id}')">✕</button></div>`).join('')||`<p style="font-size:12px;color:var(--text3);padding:6px 0">No events${selDay?' on this day':' this month'}</p>`;
+}
+function deleteEvent(id){D.events=D.events.filter(e=>e.id!==id);schedSave();renderCalendar();}
+
+// ── Notes ─────────────────────────────────────────────────────────────────
+function renderNotes(){document.getElementById('notes-grid').innerHTML=D.notes.map(n=>`<div class="note-card" onclick="openNoteEditor('${n.id}')"><div class="note-title">${esc(n.title)}</div><div class="note-preview">${esc(n.body)}</div><div class="note-date">${fmtDate(n.created)}</div><button class="note-del" onclick="event.stopPropagation();deleteNote('${n.id}')">✕</button></div>`).join('')||'<p style="font-size:12px;color:var(--text3)">No notes yet.</p>';}
+function deleteNote(id){D.notes=D.notes.filter(n=>n.id!==id);schedSave();renderNotes();}
+function openNoteEditor(id){const n=D.notes.find(n=>n.id===id);if(!n)return;showModal(`<div class="modal-title">Edit note</div><input id="m-nt" value="${esc(n.title)}"><textarea id="m-nb" style="min-height:160px">${esc(n.body)}</textarea><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveNote('${n.id}')">Save</button></div>`);}
+function saveNote(id){const n=D.notes.find(n=>n.id===id);if(n){n.title=document.getElementById('m-nt').value.trim()||'Untitled';n.body=document.getElementById('m-nb').value.trim();schedSave();renderNotes();closeModal();}}
+
+// ── Goals ─────────────────────────────────────────────────────────────────
+function renderGoals(){document.getElementById('goals-list').innerHTML=D.goals.map(g=>`<div class="goal-item"><div class="goal-row"><span class="goal-name">${esc(g.name)}</span><span class="goal-pct">${g.progress}%</span></div><div class="progress"><div class="progress-fill" style="width:${g.progress}%;background:${g.color}"></div></div><div class="goal-streak">streak: ${g.streak} days</div><div class="goal-actions"><button class="goal-btn${g.lastChecked===today()?' checked':''}" onclick="checkGoal('${g.id}')">${g.lastChecked===today()?'Done today ✓':'Mark done today'}</button><button class="goal-btn" onclick="editGoalPct('${g.id}')">Edit %</button><button class="goal-btn" onclick="deleteGoal('${g.id}')">Delete</button></div></div>`).join('')||'<p style="font-size:12px;color:var(--text3)">No goals yet.</p>';}
+function checkGoal(id){const g=D.goals.find(g=>g.id===id);if(!g||g.lastChecked===today())return;g.lastChecked=today();g.streak++;g.progress=Math.min(100,g.progress+5);schedSave();renderGoals();}
+function editGoalPct(id){const g=D.goals.find(g=>g.id===id);if(!g)return;showModal(`<div class="modal-title">Edit — ${esc(g.name)}</div><input id="m-gp" type="number" min="0" max="100" value="${g.progress}"><input id="m-gs" type="number" value="${g.streak}" placeholder="Streak days"><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveGoalPct('${id}')">Save</button></div>`);}
+function saveGoalPct(id){const g=D.goals.find(g=>g.id===id);if(g){g.progress=Math.min(100,Math.max(0,parseInt(document.getElementById('m-gp').value)||0));g.streak=parseInt(document.getElementById('m-gs').value)||0;schedSave();renderGoals();closeModal();}}
+function deleteGoal(id){D.goals=D.goals.filter(g=>g.id!==id);schedSave();renderGoals();}
+
+// ── Projects ──────────────────────────────────────────────────────────────
+function renderProjects(){document.getElementById('projects-grid').innerHTML=D.projects.map(p=>`<div class="project-card"><div class="project-header"><div class="project-name">${esc(p.name)}</div><div style="display:flex;gap:6px;align-items:center"><span class="project-status status-${p.status}">${p.status}</span><button class="project-del" onclick="deleteProject('${p.id}')">✕</button></div></div><div class="project-desc">${esc(p.desc)}</div><div class="project-progress-label"><span>progress</span><span>${p.progress}%</span></div><div class="progress"><div class="progress-fill" style="width:${p.progress}%;background:var(--accent)"></div></div></div>`).join('')||'<p style="font-size:12px;color:var(--text3)">No projects yet.</p>';}
+function deleteProject(id){D.projects=D.projects.filter(p=>p.id!==id);schedSave();renderProjects();}
+
+// ── Modals ────────────────────────────────────────────────────────────────
+function showModal(h){document.getElementById('modal-body').innerHTML=h;document.getElementById('modal-overlay').classList.add('open');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function openEventModal(){showModal(`<div class="modal-title">New event</div><input id="m-et" placeholder="Event title"><div class="modal-row"><input id="m-ed" type="date" value="${today()}"><input id="m-eim" type="time" value="10:00"></div><select id="m-ec"><option value="var(--accent)">Accent</option><option value="#34d399">Green</option><option value="#fbbf24">Amber</option><option value="#f87171">Red</option><option value="#2dd4bf">Teal</option></select><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addEvent()">Add</button></div>`);}
+function addEvent(){const t=document.getElementById('m-et').value.trim();if(!t)return;D.events.push({id:uid(),title:t,date:document.getElementById('m-ed').value,time:document.getElementById('m-eim').value,color:document.getElementById('m-ec').value});schedSave();closeModal();renderCalendar();}
+function openNoteModal(){showModal(`<div class="modal-title">New note</div><input id="m-nt" placeholder="Title"><textarea id="m-nb" style="min-height:120px" placeholder="Write anything…"></textarea><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addNote()">Save</button></div>`);}
+function addNote(){const t=document.getElementById('m-nt').value.trim()||'Untitled';const b=document.getElementById('m-nb').value.trim();D.notes.unshift({id:uid(),title:t,body:b,created:today()});schedSave();closeModal();renderNotes();}
+function openGoalModal(){showModal(`<div class="modal-title">New goal</div><input id="m-gn" placeholder="Goal name"><select id="m-gc"><option value="var(--accent)">Accent</option><option value="#34d399">Green</option><option value="#fbbf24">Amber</option><option value="#2dd4bf">Teal</option><option value="#f87171">Red</option></select><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addGoal()">Add</button></div>`);}
+function addGoal(){const n=document.getElementById('m-gn').value.trim();if(!n)return;D.goals.push({id:uid(),name:n,color:document.getElementById('m-gc').value,progress:0,streak:0,lastChecked:''});schedSave();closeModal();renderGoals();}
+function openProjectModal(){showModal(`<div class="modal-title">New project</div><input id="m-pn" placeholder="Project name"><textarea id="m-pd" placeholder="Short description"></textarea><div class="modal-row"><select id="m-ps"><option value="active">Active</option><option value="paused">Paused</option><option value="done">Done</option></select><input id="m-pp" type="number" min="0" max="100" value="0" placeholder="Progress %"></div><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addProject()">Add</button></div>`);}
+function addProject(){const n=document.getElementById('m-pn').value.trim();if(!n)return;D.projects.push({id:uid(),name:n,desc:document.getElementById('m-pd').value.trim(),status:document.getElementById('m-ps').value,progress:Math.min(100,Math.max(0,parseInt(document.getElementById('m-pp').value)||0))});schedSave();closeModal();renderProjects();}
+
+// ── Claude panel ──────────────────────────────────────────────────────────
+let claudeOpen=false;
+function toggleClaude(){claudeOpen=!claudeOpen;document.getElementById('claude-panel').classList.toggle('open',claudeOpen);document.getElementById('main').classList.toggle('panel-open',claudeOpen);if(claudeOpen&&settingsOpen)toggleSettings();}
+function fillPrompt(t){document.getElementById('claude-input').value=t;document.getElementById('claude-input').focus();}
+function sendClaude(){
+  const inp=document.getElementById('claude-input');const text=inp.value.trim();if(!text)return;inp.value='';
+  appendMsg(text,'user');const lower=text.toLowerCase();
+  if(lower.includes('open claude')||lower.includes('claude.ai')||lower.includes('full chat')){appendMsg('Opening Claude.ai with your dashboard context!','ai');window.open(`https://claude.ai/new?q=${encodeURIComponent('My dashboard:\n'+buildCtx()+'\n\nMessage: '+text)}`,'_blank');return;}
+  if(/^(add task|new task|task:)/i.test(text)){const txt=text.replace(/^(add task|new task|task:)\s*/i,'').trim();if(txt){D.tasks.unshift({id:uid(),text:txt,tag:'personal',due:'',done:false});schedSave();appendMsg(`Added: "${txt}"`, 'ai');if(currentPage==='tasks')renderTasks();return;}}
+  if(/^(add event|new event|event:)/i.test(text)){appendMsg('Opening the event form!','ai');if(currentPage!=='calendar')showPage('calendar',null);setTimeout(openEventModal,300);return;}
+  if(/^(add note|new note|note:)/i.test(text)){appendMsg('Opening note editor!','ai');if(currentPage!=='notes')showPage('notes',null);setTimeout(openNoteModal,300);return;}
+  if(lower.includes('focus')||lower.includes('priorities')||lower.includes('what should')){const p=D.tasks.filter(t=>!t.done).slice(0,3).map(t=>`• ${t.text}`).join('\n');appendMsg(`Top pending:\n${p||'All clear!'}\n\nFor deeper help tap "Full chat ↗"`, 'ai');return;}
+  if(lower.includes('how many task')){appendMsg(`${D.tasks.filter(t=>!t.done).length} pending, ${D.tasks.filter(t=>t.done).length} done.`,'ai');return;}
+  appendMsg('Sending this to Claude.ai with your full context!','ai');
+  window.open(`https://claude.ai/new?q=${encodeURIComponent('Dashboard:\n'+buildCtx()+'\n\nMessage: '+text)}`,'_blank');
+}
+function buildCtx(){return `TASKS:\n${D.tasks.filter(t=>!t.done).map(t=>`- ${t.text} [${t.tag}]${t.due?' due '+t.due:''}`).join('\n')||'none'}\nEVENTS:\n${D.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5).map(e=>`- ${e.title} on ${e.date}`).join('\n')||'none'}\nGOALS:\n${D.goals.map(g=>`- ${g.name}: ${g.progress}% (${g.streak}d streak)`).join('\n')||'none'}\nPROJECTS:\n${D.projects.map(p=>`- ${p.name} [${p.status}] ${p.progress}%`).join('\n')||'none'}`;}
+function appendMsg(text,role){const msgs=document.getElementById('claude-msgs');const div=document.createElement('div');div.className=role==='user'?'msg-user':'msg-ai';div.style.whiteSpace='pre-wrap';div.textContent=text;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
+
+// ── Reminders ─────────────────────────────────────────────────────────────
+function checkReminders(){
+  const soon=D.events.filter(e=>{if(!e.date)return false;const diff=(new Date(e.date)-new Date())/864e5;return diff>=0&&diff<=3;});
+  if(soon.length){const e=soon[0];const diff=Math.ceil((new Date(e.date)-new Date())/864e5);showToast(`"${e.title}" is ${diff===0?'today':diff===1?'tomorrow':'in '+diff+' days'}`);return;}
+  const ov=D.tasks.filter(t=>!t.done&&isOverdue(t.due));
+  if(ov.length)showToast(`${ov.length} overdue task${ov.length>1?'s':''}: "${ov[0].text}"`);
+}
+function showToast(msg){document.getElementById('toast-text').textContent=msg;document.getElementById('toast').classList.add('show');setTimeout(hideToast,5000);}
+function hideToast(){document.getElementById('toast').classList.remove('show');}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+// Check if we already have Supabase config saved
+if(CFG.url&&CFG.key){
+  syncMode=true;
+  document.getElementById('setup-screen').classList.add('hidden');
+  pullFromSupabase().then(()=>{applySettings();renderHome();renderCalendar();startRealtimeSync();});
+} else {
+  // Show setup screen on first visit
+  document.getElementById('setup-url').value='';
+  document.getElementById('setup-key').value='';
+}
+applySettings();
+renderHome();
+renderCalendar();
+setTimeout(checkReminders,2000);
+setInterval(checkReminders,5*60*1000);
+</script>
+</body>
+</html>
