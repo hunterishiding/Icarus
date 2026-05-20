@@ -247,17 +247,34 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .send-btn:hover{background:var(--accent2)}
 .send-btn svg{width:13px;height:13px;fill:#fff}
 
-/* ── Setup / Onboarding ── */
-#setup-screen{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+/* ── Login screen ── */
+#setup-screen{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;overflow:hidden}
 #setup-screen.hidden{display:none}
-.setup-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:440px;max-width:100%}
-.setup-logo{font-size:26px;font-weight:500;color:var(--accent);margin-bottom:4px;letter-spacing:-.03em}
+/* Left decorative panel */
+.login-left{flex:1;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden}
+.login-left-art{position:absolute;inset:0;pointer-events:none}
+/* Gruvbox-inspired retro stripes */
+.login-stripe{position:absolute;left:0;right:0;opacity:.18}
+.login-wordmark{font-size:42px;font-weight:500;letter-spacing:-.04em;color:var(--accent);position:relative;z-index:1}
+.login-tagline{font-size:13px;color:var(--text3);font-family:var(--font-mono);position:relative;z-index:1;line-height:1.6}
+.login-footer{font-size:11px;color:var(--text3);font-family:var(--font-mono);position:relative;z-index:1;opacity:.5}
+/* Right form panel */
+.login-right{width:400px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;padding:48px 40px;overflow-y:auto}
+.setup-box{width:100%;max-width:100%}
+.setup-logo{font-size:20px;font-weight:500;color:var(--accent);margin-bottom:2px;letter-spacing:-.03em;display:none}/* hidden on login — wordmark is left panel */
 .setup-step-indicator{display:flex;gap:6px;margin-bottom:24px;margin-top:8px}
 .step-dot{width:6px;height:6px;border-radius:50%;background:var(--bg4)}
 .step-dot.active{background:var(--accent);width:20px;border-radius:3px}
 .step-dot.done{background:var(--accent)}
-.setup-title{font-size:16px;font-weight:500;color:var(--text);margin-bottom:6px}
-.setup-sub{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.6}
+.setup-title{font-size:18px;font-weight:500;color:var(--text);margin-bottom:6px}
+.setup-sub{font-size:13px;color:var(--text3);margin-bottom:22px;line-height:1.6}
+@media(max-width:680px){
+  #setup-screen{flex-direction:column}
+  .login-left{flex:none;height:140px;padding:24px 24px 20px}
+  .login-wordmark{font-size:28px}
+  .login-tagline{display:none}
+  .login-right{width:100%;flex:1;padding:28px 24px}
+}
 .setup-label{font-size:10px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 .setup-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s;margin-bottom:14px}
 .setup-input:focus{border-color:var(--accent)}
@@ -278,7 +295,38 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .setup-info{font-size:11px;color:var(--text3);line-height:1.7;margin-bottom:16px}
 .setup-info code{background:var(--bg3);border-radius:4px;padding:1px 5px;font-family:var(--font-mono);font-size:10px;color:var(--text)}
 .setup-info a{color:var(--accent);text-decoration:none}
+.lock-icon{font-size:36px;text-align:center;margin-bottom:12px}
+.lock-hint{font-size:12px;color:var(--text3);text-align:center;margin-top:10px;line-height:1.5}
+.lock-err{font-size:12px;color:#f87171;text-align:center;margin-bottom:10px;min-height:18px}
+.user-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.user-card{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s}
+.user-card:hover{border-color:var(--border2);background:var(--bg4)}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-dim);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--accent);flex-shrink:0;overflow:hidden}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.user-name{font-size:14px;color:var(--text);font-weight:500}
+.user-sub{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.divider-line{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text3);font-size:11px}
+.divider-line::before,.divider-line::after{content:'';flex:1;height:1px;background:var(--border)}
+.back-link{font-size:12px;color:var(--text3);text-align:center;margin-top:10px;cursor:pointer;transition:color .15s}
+.back-link:hover{color:var(--accent)}
 
+/* ── Admin ── */
+.announce-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.announce-item:last-child{border-bottom:none}
+.announce-body{flex:1;min-width:0}
+.announce-msg{font-size:13px;color:var(--text);line-height:1.4;margin-bottom:3px}
+.announce-meta{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.announce-badge{font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--font-mono);flex-shrink:0;margin-top:2px}
+.badge-all{background:rgba(215,153,33,.15);color:#d79921}
+.badge-user{background:var(--accent-dim);color:var(--accent)}
+.announce-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.announce-item:hover .announce-del{opacity:1}
+.announce-del:hover{color:#f87171}
+.admin-user-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.admin-user-row:last-child{border-bottom:none}
+.admin-user-name{font-size:13px;color:var(--text);flex:1}
+.admin-user-meta{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.admin-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(215,153,33,.15);color:#d79921;font-family:var(--font-mono)}
 /* ── Toast ── */
 #toast{position:fixed;bottom:calc(var(--bottomnav-h) + 12px);left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;max-width:340px;white-space:nowrap}
 #toast.show{opacity:1;pointer-events:auto}
@@ -322,14 +370,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 }
 </style>
 </head>
-<body class="theme-dark">
+<body class="theme-gruvbox">
 
-<!-- Onboarding -->
+<!-- Login screen -->
 <div id="setup-screen">
-  <div class="setup-box">
-    <div class="setup-logo" id="setup-logo-el">icarus</div>
-    <div class="setup-step-indicator" id="step-dots"></div>
-    <div id="setup-content"></div>
+  <!-- Left decorative panel -->
+  <div class="login-left">
+    <div class="login-left-art" id="login-art"></div>
+    <div class="login-wordmark">icarus</div>
+    <div class="login-tagline">your personal dashboard<br>tasks · goals · notes · calendar</div>
+    <div class="login-footer">v2 · gruvbox edition</div>
+  </div>
+  <!-- Right form panel -->
+  <div class="login-right">
+    <div class="setup-box">
+      <div id="lock-content"></div>
+    </div>
   </div>
 </div>
 
@@ -357,6 +413,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   </div>
 </div>
 
+<div id="announce-bar" style="display:none;grid-column:1/-1;background:var(--accent-dim);border-bottom:1px solid var(--border2);padding:8px 16px;display:none;align-items:center;gap:10px;font-size:13px;color:var(--text)">
+  <span style="font-size:14px">📢</span>
+  <span id="announce-text" style="flex:1"></span>
+  <button onclick="dismissAnnounce()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;flex-shrink:0">×</button>
+</div>
 <div id="sidebar">
   <div class="nav-item active" onclick="showPage('home',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</div>
   <div class="nav-item" onclick="showPage('tasks',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tasks</div>
@@ -365,6 +426,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <div class="nav-item" onclick="showPage('goals',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</div>
   <div class="nav-item" onclick="showPage('projects',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Projects</div>
   <div class="nav-spacer"></div>
+  <div class="nav-item" id="admin-nav-item" onclick="showPage('admin',this)" style="display:none"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</div>
+  <div class="nav-item" onclick="signOut()" style="color:var(--text3)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</div>
 </div>
 
 <div id="main">
@@ -429,6 +492,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </div>
 
 <!-- Pomodoro -->
+
+  <!-- Admin page -->
+  <div id="page-admin" class="page">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📢 Announcements</div>
+        <button class="card-action" onclick="openAnnounceModal()">+ New</button>
+      </div>
+      <div id="admin-announce-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">👥 Users</div></div>
+      <div id="admin-user-list"></div>
+    </div>
+  </div>
+
 <div id="pomo-widget">
   <div class="pomo-label">Pomodoro</div>
   <div class="pomo-time" id="pomo-time">25:00</div>
@@ -521,7 +600,7 @@ function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
 function defaultData(){
   const td=today();
   return {
-    profile:{name:'Hunter',username:'@hunter',appname:'icarus',theme:'dark',font:'DM Sans',accentIdx:0,pfp:'',sections:{stats:true,tasks:true,events:true,goals:true}},
+    profile:{name:'Hunter',username:'@hunter',appname:'icarus',theme:'gruvbox',font:'DM Sans',accentIdx:0,pfp:'',sections:{stats:true,tasks:true,events:true,goals:true}},
     tasks:[{id:uid(),text:'Explore your new dashboard',tag:'personal',due:td,done:false},{id:uid(),text:'Add your first real task',tag:'personal',due:'',done:false}],
     events:[{id:uid(),title:'First day of university',date:'2026-08-25',time:'08:00',color:'#8b7cf8'}],
     notes:[{id:uid(),title:'Welcome!',body:'Your dashboard is live. Personalize it, set up sync, and install it on your home screen.',created:td}],
@@ -529,7 +608,10 @@ function defaultData(){
     projects:[{id:uid(),name:'Arduino motor controller',desc:'PWM ramping with direct analogWrite/digitalWrite control.',status:'active',progress:45}],
   };
 }
-let D=loadLocal(), CFG=loadCfg(), syncMode=false, syncTimer=null, currentPage='home';
+// ── Hard-coded Supabase config ────────────────────────────────────────────
+const HARDCODED_CFG={url:'https://tfsawkogkpqhrsixpvcq.supabase.co',key:'sb_publishable_Oyd2c76wSo14L0SUCS2Yqw_9A-MGXwi'};
+let D=loadLocal(), CFG=HARDCODED_CFG, syncMode=true, syncTimer=null, currentPage='home';
+saveCfg(CFG);
 
 // ── Utils ─────────────────────────────────────────────────────────────────
 function uid(){return Math.random().toString(36).slice(2,10);}
@@ -579,25 +661,26 @@ async function sbFetch(path,opts={}){
   return res.json();
 }
 async function pushToSupabase(){
-  if(!syncMode)return;
+  if(!syncMode||!currentUser)return;
   setSyncUI('syncing');
   try{
-    await sbFetch('/rest/v1/myflow?id=eq.main',{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({data:D,updated_at:new Date().toISOString()})});
+    const key='user_'+currentUser.id;
+    await sbFetch('/rest/v1/myflow?id=eq.'+key,{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({data:D,updated_at:new Date().toISOString()})});
     setSyncUI('synced');
   }catch(e){setSyncUI('error');console.error('Sync push error',e);}
 }
 async function pullFromSupabase(){
-  if(!syncMode)return;
+  if(!syncMode||!currentUser)return;
   setSyncUI('syncing');
   try{
-    const rows=await sbFetch('/rest/v1/myflow?id=eq.main&select=data');
+    const key='user_'+currentUser.id;
+    const rows=await sbFetch('/rest/v1/myflow?id=eq.'+key+'&select=data');
     if(rows&&rows[0]&&rows[0].data&&Object.keys(rows[0].data).length>0){D=rows[0].data;saveLocal(D);}
     setSyncUI('synced');
   }catch(e){setSyncUI('error');console.error('Sync pull error',e);}
 }
 function schedSave(){saveLocal(D);if(!syncMode)return;clearTimeout(syncTimer);syncTimer=setTimeout(pushToSupabase,1200);}
 async function manualSync(){
-  if(!syncMode){showSetupStep(3);return;}
   await pullFromSupabase();applySettings();renderPage(currentPage);showToast('Pulled latest data!');
 }
 function startPolling(){setInterval(async()=>{if(syncMode)await pullFromSupabase();},30000);}
@@ -605,7 +688,7 @@ function startPolling(){setInterval(async()=>{if(syncMode)await pullFromSupabase
 // ── Apply settings ────────────────────────────────────────────────────────
 function applySettings(){
   const p=D.profile||{};
-  document.body.className='theme-'+(p.theme||'dark');
+  document.body.className='theme-'+(p.theme||'gruvbox');
   const font=p.font||'DM Sans';
   document.body.style.fontFamily=`'${font}', sans-serif`;
   const a=ACCENTS[p.accentIdx||0];
@@ -685,94 +768,293 @@ function saveSettings(){
   schedSave();applySettings();toggleSettings();showToast('Settings saved!');renderHome();
 }
 
-// ── Onboarding / setup flow ───────────────────────────────────────────────
-let onboardStep=0;
-const STEPS=['welcome','profile','sync'];
-function showSetupStep(step){
-  onboardStep=step;
-  const dots=document.getElementById('step-dots');
-  dots.innerHTML=STEPS.map((_,i)=>`<div class="step-dot${i===step?' active':i<step?' done':''}"></div>`).join('');
-  const content=document.getElementById('setup-content');
-  if(step===0){
-    content.innerHTML=`
-      <div class="setup-title">Welcome to icarus</div>
-      <div class="setup-sub">Your personal dashboard for tasks, goals, notes, and more. Let's get you set up in about 60 seconds.</div>
-      <button class="setup-btn" onclick="showSetupStep(1)">Get started →</button>
-      <button class="setup-skip" onclick="finishSetup(true)">Skip setup</button>`;
-  } else if(step===1){
-    const p=D.profile||{};
-    content.innerHTML=`
-      <div class="setup-title">Who are you?</div>
-      <div class="setup-pfp-row"><div class="setup-pfp" id="ob-pfp" onclick="document.getElementById('ob-pfp-input').click()">${p.pfp?`<img src="${p.pfp}">`:(p.name||'H')[0].toUpperCase()}</div></div>
-      <div class="setup-pfp-hint">Tap to upload a photo</div>
-      <input type="file" id="ob-pfp-input" accept="image/*" style="display:none" onchange="handleObPfp(event)">
-      <div class="setup-label">Your name</div>
-      <input class="setup-input" id="ob-name" placeholder="Hunter" value="${esc(p.name||'')}">
-      <div class="setup-label">Accent color</div>
-      <div class="setup-color-row">${ACCENTS.map((a,i)=>`<div class="setup-swatch${(p.accentIdx||0)===i?' active':''}" style="background:${a.hex}" onclick="pickObAccent(${i},this)"></div>`).join('')}</div>
-      <div class="setup-label">Theme</div>
-      <div class="theme-grid" style="margin-bottom:14px">${THEMES.map(t=>`<div class="theme-opt${(p.theme||'dark')===t.id?' active':''}" onclick="pickObTheme('${t.id}',this)">${t.label}</div>`).join('')}</div>
-      <button class="setup-btn" onclick="saveObProfile()">Continue →</button>
-      <button class="setup-skip" onclick="showSetupStep(2)">Skip</button>`;
-  } else if(step===2 || step===3){
-    content.innerHTML=`
-      <div class="setup-title">Auto-sync across devices</div>
-      <div class="setup-sub">Connect Supabase so your data syncs everywhere automatically. Free forever.</div>
-      <div class="setup-info">
-        1. Go to <a href="https://supabase.com" target="_blank">supabase.com</a> → create a free project<br>
-        2. In <strong>SQL Editor</strong> run:<br>
-        <code>create table myflow (id text primary key, data jsonb not null, updated_at timestamptz default now()); insert into myflow (id, data) values ('main', '{}');</code><br>
-        3. Go to <strong>Project Settings → API</strong> and paste below
-      </div>
-      <div class="setup-label">Supabase Project URL</div>
-      <input class="setup-input mono" id="ob-url" placeholder="https://xxxx.supabase.co" value="${esc(CFG.url||'')}">
-      <div class="setup-label">Supabase Anon Key</div>
-      <input class="setup-input mono" id="ob-key" placeholder="eyJhbGci…" value="${esc(CFG.key||'')}">
-      <div class="setup-error" id="ob-error"></div>
-      <button class="setup-btn" onclick="connectOb()">Connect & finish</button>
-      <button class="setup-skip" onclick="finishSetup(false)">Skip for now</button>`;
-  }
-  document.getElementById('setup-screen').classList.remove('hidden');
+// ── Multi-user auth system ────────────────────────────────────────────────
+let currentUser=null; // {id, username, displayName}
+let allUsers=[];      // loaded from Supabase on boot
+
+async function hashPw(pw){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-function handleObPfp(ev){
-  const f=ev.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{D.profile.pfp=e.target.result;const el=document.getElementById('ob-pfp');if(el)el.innerHTML=`<img src="${e.target.result}">`;};
-  r.readAsDataURL(f);ev.target.value='';
-}
-function pickObAccent(idx,el){D.profile.accentIdx=idx;document.querySelectorAll('.setup-swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');applySettings();}
-function pickObTheme(t,el){D.profile.theme=t;document.querySelectorAll('#setup-content .theme-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');applySettings();}
-function saveObProfile(){
-  const name=document.getElementById('ob-name').value.trim()||'Hunter';
-  D.profile.name=name;D.profile.username='@'+name.toLowerCase().replace(/\s+/g,'');
-  saveLocal(D);applySettings();showSetupStep(2);
-}
-async function connectOb(){
-  const url=document.getElementById('ob-url').value.trim();
-  const key=document.getElementById('ob-key').value.trim();
-  const err=document.getElementById('ob-error');
-  err.style.display='none';
-  if(!url||!key){err.textContent='Fill both fields.';err.style.display='block';return;}
-  err.textContent='Testing…';err.style.display='block';err.style.color='var(--text3)';
+
+// Load user list from Supabase (icarus_users table)
+async function loadUsers(){
   try{
-    const res=await fetch(url.replace(/\/$/,'')+'/rest/v1/myflow?id=eq.main&select=data',{headers:{'apikey':key,'Authorization':'Bearer '+key}});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const rows=await res.json();
-    CFG={url,key};saveCfg(CFG);syncMode=true;
-    if(rows&&rows[0]&&rows[0].data&&Object.keys(rows[0].data).length>0){D=rows[0].data;saveLocal(D);}
-    else await pushToSupabase();
-    finishSetup(true);
-    setSyncUI('synced');
-    startPolling();
-    showToast('Synced! Open your share link on any device.');
-  }catch(e){err.textContent='Connection failed — check your URL and key.';err.style.color='#f87171';err.style.display='block';}
+    const rows=await sbFetch('/rest/v1/icarus_users?select=id,username,display_name,avatar');
+    allUsers=rows||[];
+  }catch(e){allUsers=[];console.error('Could not load users',e);}
 }
-function finishSetup(synced){
+
+// ── Screen: user picker (home screen of login) ────────────────────────────
+async function showLockScreen(){
+  document.getElementById('setup-screen').classList.remove('hidden');
+  drawLoginArt();
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`<div style="text-align:center;padding:20px 0;color:var(--text3);font-family:var(--font-mono);font-size:12px">Loading…</div>`;
+  await loadUsers();
+  renderUserPicker();
+}
+
+function drawLoginArt(){
+  const art=document.getElementById('login-art');
+  if(!art)return;
+  // Gruvbox retro stripes — same palette as the wallpaper
+  const stripes=[
+    {color:'#5a7a4a',top:'52%',h:'9%'},   // green
+    {color:'#6b9ab8',top:'61%',h:'7%'},   // blue
+    {color:'#c09030',top:'68%',h:'8%'},   // yellow/orange
+    {color:'#cc3333',top:'76%',h:'8%'},   // red
+  ];
+  art.innerHTML=stripes.map(s=>`<div style="position:absolute;left:0;right:0;top:${s.top};height:${s.h};background:${s.color};opacity:.22;"></div>`).join('');
+}
+
+function renderUserPicker(){
+  const content=document.getElementById('lock-content');
+  if(allUsers.length===0){
+    // No users yet — go straight to register
+    showRegisterScreen();
+    return;
+  }
+  const userCards=allUsers.map(u=>`
+    <div class="user-card" onclick="showPasswordScreen('${u.id}','${esc(u.username)}','${esc(u.display_name||u.username)}')">
+      <div class="user-avatar">${u.avatar?`<img src="${esc(u.avatar)}">`:(u.display_name||u.username)[0].toUpperCase()}</div>
+      <div><div class="user-name">${esc(u.display_name||u.username)}</div><div class="user-sub">${esc('@'+u.username)}</div></div>
+    </div>`).join('');
+  content.innerHTML=`
+    <div class="setup-title" style="text-align:center;margin-bottom:4px">icarus</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Who's logging in?</div>
+    <div class="user-list">${userCards}</div>
+    <div class="divider-line">or</div>
+    <button class="setup-skip" onclick="showRegisterScreen()">+ Create new account</button>`;
+}
+
+// ── Screen: password entry for a chosen user ──────────────────────────────
+function showPasswordScreen(userId, username, displayName){
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`
+    <div class="setup-title" style="text-align:center;margin-bottom:4px">Welcome back, ${esc(displayName)}</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Enter your password to continue.</div>
+    <input class="setup-input" type="password" id="pw-in" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitLogin('${userId}','${esc(username)}','${esc(displayName)}')">
+    <div class="lock-err" id="lock-err"></div>
+    <button class="setup-btn" onclick="submitLogin('${userId}','${esc(username)}','${esc(displayName)}')">Unlock →</button>
+    <div class="back-link" onclick="renderUserPicker()">← Back</div>`;
+  setTimeout(()=>{const el=document.getElementById('pw-in');if(el)el.focus();},80);
+}
+
+async function submitLogin(userId, username, displayName){
+  const val=document.getElementById('pw-in').value;
+  const err=document.getElementById('lock-err');
+  if(!val){err.textContent='Enter your password.';return;}
+  err.textContent='Checking…';err.style.color='var(--text3)';
+  try{
+    const hash=await hashPw(val);
+    const rows=await sbFetch('/rest/v1/icarus_users?id=eq.'+userId+'&select=pw_hash');
+    if(!rows||!rows[0]){err.textContent='User not found.';err.style.color='#f87171';return;}
+    if(rows[0].pw_hash===hash){
+      currentUser={id:userId,username,displayName};
+      unlockApp();
+    } else {
+      err.textContent='Wrong password. Try again.';err.style.color='#f87171';
+      document.getElementById('pw-in').value='';
+      document.getElementById('pw-in').focus();
+    }
+  }catch(e){err.textContent='Connection error. Try again.';err.style.color='#f87171';}
+}
+
+// ── Screen: register new user ─────────────────────────────────────────────
+function showRegisterScreen(){
+  const content=document.getElementById('lock-content');
+  const canGoBack=allUsers.length>0;
+  content.innerHTML=`
+    <div class="setup-title" style="text-align:center;margin-bottom:4px">Create account</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Pick a username and password. No email needed.</div>
+    <div class="setup-label">Display name</div>
+    <input class="setup-input" type="text" id="reg-name" placeholder="Your name" autocomplete="off" maxlength="32">
+    <div class="setup-label">Username</div>
+    <input class="setup-input" type="text" id="reg-user" placeholder="lowercase, no spaces" autocomplete="off" maxlength="20">
+    <div class="setup-label">Password</div>
+    <input class="setup-input" type="password" id="reg-pw-a" placeholder="Choose a password" autocomplete="new-password">
+    <div class="setup-label">Confirm password</div>
+    <input class="setup-input" type="password" id="reg-pw-b" placeholder="Repeat it" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitRegister()">
+    <div class="lock-err" id="lock-err"></div>
+    <button class="setup-btn" onclick="submitRegister()">Create account →</button>
+    ${canGoBack?'<div class="back-link" onclick="renderUserPicker()">← Back to login</div>':''}`;
+  setTimeout(()=>{const el=document.getElementById('reg-name');if(el)el.focus();},80);
+}
+
+async function submitRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const rawUser=document.getElementById('reg-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const pwA=document.getElementById('reg-pw-a').value;
+  const pwB=document.getElementById('reg-pw-b').value;
+  const err=document.getElementById('lock-err');
+  err.style.color='#f87171';
+  if(!name){err.textContent='Enter a display name.';return;}
+  if(rawUser.length<2){err.textContent='Username must be at least 2 characters (letters/numbers/underscore).';return;}
+  if(pwA.length<4){err.textContent='Password must be at least 4 characters.';return;}
+  if(pwA!==pwB){err.textContent='Passwords do not match.';return;}
+  // Check username taken
+  if(allUsers.some(u=>u.username===rawUser)){err.textContent='Username already taken.';return;}
+  err.textContent='Creating account…';err.style.color='var(--text3)';
+  try{
+    const hash=await hashPw(pwA);
+    const newId=uid();
+    await sbFetch('/rest/v1/icarus_users',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({id:newId,username:rawUser,display_name:name,pw_hash:hash,avatar:''})});
+    // Create their data row
+    const freshD=defaultData();
+    freshD.profile.name=name;freshD.profile.username='@'+rawUser;
+    await sbFetch('/rest/v1/myflow',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({id:'user_'+newId,data:freshD,updated_at:new Date().toISOString()})});
+    currentUser={id:newId,username:rawUser,displayName:name};
+    D=freshD;saveLocal(D);
+    unlockApp();
+  }catch(e){err.textContent='Error creating account: '+e.message;err.style.color='#f87171';}
+}
+
+function unlockApp(){
   document.getElementById('setup-screen').classList.add('hidden');
-  if(!synced)setSyncUI('local');
-  applySettings();renderHome();renderCalendar();
+  finishSetup();
+}
+function finishSetup(){
+  pullFromSupabase().then(()=>{
+    applySettings();renderHome();renderCalendar();setSyncUI('synced');startPolling();
+    setupAdminUI();
+    checkAnnouncements();
+  });
   saveLocal(D);
 }
+function signOut(){
+  if(!confirm('Sign out?'))return;
+  currentUser=null;D=defaultData();saveLocal(D);
+  document.getElementById('setup-screen').classList.remove('hidden');
+  showLockScreen();
+}
+
+// ── Admin system ──────────────────────────────────────────────────────────
+const ADMIN_USERNAME='hunter'; // change this to your username
+
+function isAdmin(){return currentUser&&currentUser.username===ADMIN_USERNAME;}
+
+function setupAdminUI(){
+  const nav=document.getElementById('admin-nav-item');
+  if(nav)nav.style.display=isAdmin()?'flex':'none';
+}
+
+// Announcements: stored in Supabase table icarus_announcements
+// {id, message, target ('all' or user id), created_at, created_by}
+
+async function renderAdminPage(){
+  await renderAdminAnnouncements();
+  await renderAdminUsers();
+}
+
+async function renderAdminAnnouncements(){
+  const list=document.getElementById('admin-announce-list');
+  if(!list)return;
+  list.innerHTML='<p style="font-size:12px;color:var(--text3)">Loading…</p>';
+  try{
+    const rows=await sbFetch('/rest/v1/icarus_announcements?order=created_at.desc&select=*');
+    if(!rows||rows.length===0){list.innerHTML='<p style="font-size:12px;color:var(--text3)">No announcements yet.</p>';return;}
+    list.innerHTML=rows.map(a=>{
+      const isAll=a.target==='all';
+      const targetLabel=isAll?'Everyone':(allUsers.find(u=>u.id===a.target)||{display_name:'?'}).display_name;
+      return `<div class="announce-item">
+        <div class="announce-body">
+          <div class="announce-msg">${esc(a.message)}</div>
+          <div class="announce-meta">${new Date(a.created_at).toLocaleDateString()} · to: ${esc(targetLabel)}</div>
+        </div>
+        <span class="announce-badge ${isAll?'badge-all':'badge-user'}">${esc(isAll?'all':targetLabel)}</span>
+        <button class="announce-del" onclick="deleteAnnouncement('${a.id}')">✕</button>
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<p style="font-size:12px;color:#f87171">Error loading.</p>';}
+}
+
+async function renderAdminUsers(){
+  const list=document.getElementById('admin-user-list');
+  if(!list)return;
+  list.innerHTML=allUsers.map(u=>`
+    <div class="admin-user-row">
+      <div class="user-avatar" style="width:28px;height:28px;font-size:12px">${u.avatar?`<img src="${esc(u.avatar)}">`:(u.display_name||u.username)[0].toUpperCase()}</div>
+      <div class="admin-user-name">${esc(u.display_name||u.username)} <span class="admin-user-meta">@${esc(u.username)}</span></div>
+      ${u.username===ADMIN_USERNAME?'<span class="admin-badge">admin</span>':''}
+    </div>`).join('')||'<p style="font-size:12px;color:var(--text3)">No users.</p>';
+}
+
+function openAnnounceModal(){
+  const userOptions=allUsers.map(u=>`<option value="${u.id}">${esc(u.display_name||u.username)}</option>`).join('');
+  showModal(`<div class="modal-title">New announcement</div>
+    <textarea id="m-ann" style="min-height:100px" placeholder="Write your announcement…"></textarea>
+    <div class="setup-label" style="margin-bottom:8px">Send to</div>
+    <select id="m-ann-target">
+      <option value="all">Everyone</option>
+      ${userOptions}
+    </select>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="sendAnnouncement()">Send</button>
+    </div>`);
+}
+
+async function sendAnnouncement(){
+  const msg=document.getElementById('m-ann').value.trim();
+  const target=document.getElementById('m-ann-target').value;
+  if(!msg)return;
+  try{
+    await sbFetch('/rest/v1/icarus_announcements',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:uid(),message:msg,target,created_by:currentUser.id,created_at:new Date().toISOString(),dismissed_by:[]})});
+    closeModal();showToast('Announcement sent!');
+    renderAdminAnnouncements();
+  }catch(e){showToast('Error sending announcement.');}
+}
+
+async function deleteAnnouncement(id){
+  try{
+    await sbFetch('/rest/v1/icarus_announcements?id=eq.'+id,{method:'DELETE'});
+    renderAdminAnnouncements();showToast('Deleted.');
+  }catch(e){showToast('Error deleting.');}
+}
+
+// Check for announcements for current user on login
+async function checkAnnouncements(){
+  if(!currentUser)return;
+  try{
+    // Get announcements targeting 'all' or this specific user
+    const rows=await sbFetch('/rest/v1/icarus_announcements?order=created_at.desc&select=*');
+    if(!rows||rows.length===0)return;
+    const relevant=rows.filter(a=>{
+      if(a.target!=='all'&&a.target!==currentUser.id)return false;
+      const dismissed=a.dismissed_by||[];
+      return !dismissed.includes(currentUser.id);
+    });
+    if(relevant.length===0)return;
+    const latest=relevant[0];
+    const bar=document.getElementById('announce-bar');
+    const txt=document.getElementById('announce-text');
+    if(bar&&txt){
+      txt.textContent=latest.message+(relevant.length>1?' ('+relevant.length+' announcements)':'');
+      bar.style.display='flex';
+      bar.dataset.announceId=latest.id;
+    }
+  }catch(e){/* silent */}
+}
+
+async function dismissAnnounce(){
+  const bar=document.getElementById('announce-bar');
+  if(!bar)return;
+  bar.style.display='none';
+  const id=bar.dataset.announceId;
+  if(id&&currentUser){
+    try{
+      // Mark as dismissed by appending to dismissed_by array
+      const rows=await sbFetch('/rest/v1/icarus_announcements?id=eq.'+id+'&select=dismissed_by');
+      if(rows&&rows[0]){
+        const dismissed=[...(rows[0].dismissed_by||[]),currentUser.id];
+        await sbFetch('/rest/v1/icarus_announcements?id=eq.'+id,{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({dismissed_by:dismissed})});
+      }
+    }catch(e){/* silent */}
+  }
+}
+
 
 // ── Navigation ────────────────────────────────────────────────────────────
 function showPage(name,navEl){
@@ -792,6 +1074,7 @@ function renderPage(name){
   else if(name==='notes')renderNotes();
   else if(name==='goals')renderGoals();
   else if(name==='projects')renderProjects();
+  else if(name==='admin')renderAdminPage();
 }
 
 // ── Home ──────────────────────────────────────────────────────────────────
@@ -932,20 +1215,8 @@ function checkReminders(){
 window.addEventListener('resize',()=>{if(currentPage==='calendar')renderCalendar();});
 
 // ── Init ──────────────────────────────────────────────────────────────────
-const hadUrlParam=parseUrlParams();
-const firstVisit=!localStorage.getItem(LS);
-
-if(CFG.url&&CFG.key){
-  syncMode=true;
-  document.getElementById('setup-screen').classList.add('hidden');
-  pullFromSupabase().then(()=>{applySettings();renderHome();renderCalendar();startPolling();});
-} else if(firstVisit){
-  showSetupStep(0);
-} else {
-  document.getElementById('setup-screen').classList.add('hidden');
-  setSyncUI('local');
-}
-
+// Show lock screen always — unlockApp() pulls from Supabase then reveals the app
+showLockScreen();
 applySettings();
 renderHome();
 renderCalendar();
