@@ -309,6 +309,30 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .divider-line::before,.divider-line::after{content:'';flex:1;height:1px;background:var(--border)}
 .back-link{font-size:12px;color:var(--text3);text-align:center;margin-top:10px;cursor:pointer;transition:color .15s}
 .back-link:hover{color:var(--accent)}
+/* Onboarding steps */
+.ob-steps{display:flex;gap:6px;justify-content:center;margin-bottom:28px}
+.ob-dot{width:28px;height:4px;border-radius:2px;background:var(--bg4);transition:all .25s}
+.ob-dot.active{background:var(--accent);width:40px}
+.ob-dot.done{background:var(--accent);opacity:.4}
+.ob-swatch-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.ob-swatch{height:40px;border-radius:var(--radius-sm);cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative}
+.ob-swatch:hover{transform:scale(1.05)}
+.ob-swatch.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.ob-theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.ob-theme{border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:4px}
+.ob-theme:hover{border-color:var(--border2)}
+.ob-theme.active{border-color:var(--accent)}
+.ob-theme-label{font-size:12px;font-weight:500;color:var(--text)}
+.ob-theme-dots{display:flex;gap:4px}
+.ob-theme-dot{width:10px;height:10px;border-radius:50%}
+.ob-font-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.ob-font{border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;transition:all .15s;color:var(--text2);font-size:14px}
+.ob-font:hover{border-color:var(--border2);color:var(--text)}
+.ob-font.active{border-color:var(--accent);color:var(--accent)}
+.ob-welcome{text-align:center;padding:12px 0 20px}
+.ob-welcome-logo{font-family:'Playfair Display',serif;font-size:52px;font-style:italic;color:var(--accent);margin-bottom:8px;line-height:1.1}
+.ob-welcome-sub{font-family:'Playfair Display',serif;font-size:16px;color:var(--text2);font-style:italic;margin-bottom:32px;line-height:1.6}
+.ob-welcome-name{font-size:22px;font-weight:500;color:var(--text);margin-bottom:4px}
 
 /* ── Admin ── */
 .announce-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -597,15 +621,10 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(LS))||defaultDat
 function saveLocal(d){localStorage.setItem(LS,JSON.stringify(d));}
 function loadCfg(){try{return JSON.parse(localStorage.getItem(LS_CFG))||{};}catch(e){return {};}}
 function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
-function defaultData(){
-  const td=today();
+function defaultData(name,username){
   return {
-    profile:{name:'Hunter',username:'@hunter',appname:'icarus',theme:'gruvbox',font:'DM Sans',accentIdx:0,pfp:'',sections:{stats:true,tasks:true,events:true,goals:true}},
-    tasks:[{id:uid(),text:'Explore your new dashboard',tag:'personal',due:td,done:false},{id:uid(),text:'Add your first real task',tag:'personal',due:'',done:false}],
-    events:[{id:uid(),title:'First day of university',date:'2026-08-25',time:'08:00',color:'#8b7cf8'}],
-    notes:[{id:uid(),title:'Welcome!',body:'Your dashboard is live. Personalize it, set up sync, and install it on your home screen.',created:td}],
-    goals:[{id:uid(),name:'Read 20 min / day',color:'#8b7cf8',progress:60,streak:8,lastChecked:''},{id:uid(),name:'Exercise 3× / week',color:'#34d399',progress:66,streak:3,lastChecked:''}],
-    projects:[{id:uid(),name:'Arduino motor controller',desc:'PWM ramping with direct analogWrite/digitalWrite control.',status:'active',progress:45}],
+    profile:{name:name||'',username:username||'',appname:'icarus',theme:'gruvbox',font:'DM Sans',accentIdx:0,pfp:'',sections:{stats:true,tasks:true,events:true,goals:true}},
+    tasks:[],events:[],notes:[],goals:[],projects:[],
   };
 }
 // ── Hard-coded Supabase config ────────────────────────────────────────────
@@ -861,28 +880,37 @@ async function submitLogin(userId, username, displayName){
   }catch(e){err.textContent='Connection error. Try again.';err.style.color='#f87171';}
 }
 
-// ── Screen: register new user ─────────────────────────────────────────────
+// ── Screen: register new user (step 1 of 4) ──────────────────────────────
+let obData={name:'',username:'',pwHash:'',accentIdx:0,theme:'gruvbox',font:'DM Sans'};
+
 function showRegisterScreen(){
-  const content=document.getElementById('lock-content');
   const canGoBack=allUsers.length>0;
+  obData={name:'',username:'',pwHash:'',accentIdx:0,theme:'gruvbox',font:'DM Sans'};
+  showObStep1(canGoBack);
+}
+
+// Step 1: credentials
+function showObStep1(canGoBack){
+  const content=document.getElementById('lock-content');
   content.innerHTML=`
+    <div class="ob-steps"><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
     <div class="setup-title" style="text-align:center;margin-bottom:4px">Create account</div>
-    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Pick a username and password. No email needed.</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:18px">No email needed. Just pick a name and password.</div>
     <div class="setup-label">Display name</div>
-    <input class="setup-input" type="text" id="reg-name" placeholder="Your name" autocomplete="off" maxlength="32">
+    <input class="setup-input" type="text" id="reg-name" placeholder="Your name" autocomplete="off" maxlength="32" value="${esc(obData.name)}">
     <div class="setup-label">Username</div>
-    <input class="setup-input" type="text" id="reg-user" placeholder="lowercase, no spaces" autocomplete="off" maxlength="20">
+    <input class="setup-input" type="text" id="reg-user" placeholder="lowercase, no spaces" autocomplete="off" maxlength="20" value="${esc(obData.username)}">
     <div class="setup-label">Password</div>
     <input class="setup-input" type="password" id="reg-pw-a" placeholder="Choose a password" autocomplete="new-password">
     <div class="setup-label">Confirm password</div>
-    <input class="setup-input" type="password" id="reg-pw-b" placeholder="Repeat it" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitRegister()">
+    <input class="setup-input" type="password" id="reg-pw-b" placeholder="Repeat it" autocomplete="new-password" onkeydown="if(event.key==='Enter')obStep1Next()">
     <div class="lock-err" id="lock-err"></div>
-    <button class="setup-btn" onclick="submitRegister()">Create account →</button>
+    <button class="setup-btn" onclick="obStep1Next()">Continue →</button>
     ${canGoBack?'<div class="back-link" onclick="renderUserPicker()">← Back to login</div>':''}`;
   setTimeout(()=>{const el=document.getElementById('reg-name');if(el)el.focus();},80);
 }
 
-async function submitRegister(){
+async function obStep1Next(){
   const name=document.getElementById('reg-name').value.trim();
   const rawUser=document.getElementById('reg-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
   const pwA=document.getElementById('reg-pw-a').value;
@@ -890,24 +918,130 @@ async function submitRegister(){
   const err=document.getElementById('lock-err');
   err.style.color='#f87171';
   if(!name){err.textContent='Enter a display name.';return;}
-  if(rawUser.length<2){err.textContent='Username must be at least 2 characters (letters/numbers/underscore).';return;}
+  if(rawUser.length<2){err.textContent='Username must be at least 2 chars (letters / numbers / _).';return;}
   if(pwA.length<4){err.textContent='Password must be at least 4 characters.';return;}
   if(pwA!==pwB){err.textContent='Passwords do not match.';return;}
-  // Check username taken
   if(allUsers.some(u=>u.username===rawUser)){err.textContent='Username already taken.';return;}
-  err.textContent='Creating account…';err.style.color='var(--text3)';
+  obData.name=name;
+  obData.username=rawUser;
+  obData.pwHash=await hashPw(pwA);
+  showObStep2();
+}
+
+// Step 2: accent color
+function showObStep2(){
+  const content=document.getElementById('lock-content');
+  const swatches=ACCENTS.map((a,i)=>`
+    <div class="ob-swatch${i===obData.accentIdx?' active':''}" style="background:${a.hex}" onclick="obPickAccent(${i},this)" title="${a.label}"></div>`).join('');
+  content.innerHTML=`
+    <div class="ob-steps"><div class="ob-dot done"></div><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+    <div class="setup-title" style="text-align:center;margin-bottom:4px">Pick your accent</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:20px">This color shows up on buttons, highlights, and your logo.</div>
+    <div class="ob-swatch-grid">${swatches}</div>
+    <button class="setup-btn" onclick="showObStep3()">Continue →</button>
+    <div class="back-link" onclick="showObStep1(allUsers.length>0)">← Back</div>`;
+}
+
+function obPickAccent(idx,el){
+  obData.accentIdx=idx;
+  document.querySelectorAll('.ob-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  // Live preview
+  const a=ACCENTS[idx];
+  document.documentElement.style.setProperty('--accent',a.hex);
+  document.documentElement.style.setProperty('--accent2',a.dark);
+  document.documentElement.style.setProperty('--accent-dim',a.dim);
+}
+
+// Step 3: theme + font
+const OB_THEMES=[
+  {id:'gruvbox',label:'Gruvbox',dots:['#282828','#ebdbb2','#d79921']},
+  {id:'dark',label:'Dark',dots:['#0f0f11','#f0eff4','#8b7cf8']},
+  {id:'midnight',label:'Midnight',dots:['#080b14','#e8eeff','#6b9ab8']},
+  {id:'warm',label:'Warm',dots:['#12100e','#f5f0e8','#c09030']},
+  {id:'light',label:'Light',dots:['#f5f4f7','#1a1820','#8b7cf8']},
+  {id:'minimal',label:'Minimal',dots:['#fafaf8','#1c1b18','#665c54']},
+];
+const OB_FONTS=[
+  {id:'DM Sans',label:'DM Sans'},
+  {id:'Space Grotesk',label:'Space Grotesk'},
+  {id:'Sora',label:'Sora'},
+  {id:'Outfit',label:'Outfit'},
+  {id:'Inter',label:'Inter'},
+  {id:'Playfair Display',label:'Playfair Display'},
+];
+
+function showObStep3(){
+  const content=document.getElementById('lock-content');
+  const themeCards=OB_THEMES.map(t=>`
+    <div class="ob-theme${t.id===obData.theme?' active':''}" onclick="obPickTheme('${t.id}',this)">
+      <div class="ob-theme-dots">${t.dots.map(c=>`<div class="ob-theme-dot" style="background:${c}"></div>`).join('')}</div>
+      <div class="ob-theme-label">${t.label}</div>
+    </div>`).join('');
+  const fontList=OB_FONTS.map(f=>`
+    <div class="ob-font${f.id===obData.font?' active':''}" style="font-family:'${f.id}'" onclick="obPickFont('${f.id}',this)">${f.label}</div>`).join('');
+  content.innerHTML=`
+    <div class="ob-steps"><div class="ob-dot done"></div><div class="ob-dot done"></div><div class="ob-dot active"></div><div class="ob-dot"></div></div>
+    <div class="setup-title" style="text-align:center;margin-bottom:4px">Make it yours</div>
+    <div class="setup-sub" style="text-align:center;margin-bottom:16px">Pick a theme and font.</div>
+    <div class="setup-label">Theme</div>
+    <div class="ob-theme-grid">${themeCards}</div>
+    <div class="setup-label">Font</div>
+    <div class="ob-font-list">${fontList}</div>
+    <button class="setup-btn" onclick="submitRegister()">Create my account →</button>
+    <div class="back-link" onclick="showObStep2()">← Back</div>`;
+}
+
+function obPickTheme(id,el){
+  obData.theme=id;
+  document.querySelectorAll('.ob-theme').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  document.body.className='theme-'+id;
+}
+
+function obPickFont(id,el){
+  obData.font=id;
+  document.querySelectorAll('.ob-font').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  document.body.style.fontFamily=`'${id}', sans-serif`;
+}
+
+// Submit registration then show welcome screen
+async function submitRegister(){
+  const btn=document.querySelector('.setup-btn');
+  if(btn){btn.disabled=true;btn.textContent='Creating…';}
   try{
-    const hash=await hashPw(pwA);
     const newId=uid();
-    await sbFetch('/rest/v1/icarus_users',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({id:newId,username:rawUser,display_name:name,pw_hash:hash,avatar:''})});
-    // Create their data row
-    const freshD=defaultData();
-    freshD.profile.name=name;freshD.profile.username='@'+rawUser;
-    await sbFetch('/rest/v1/myflow',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({id:'user_'+newId,data:freshD,updated_at:new Date().toISOString()})});
-    currentUser={id:newId,username:rawUser,displayName:name};
+    await sbFetch('/rest/v1/icarus_users',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:newId,username:obData.username,display_name:obData.name,pw_hash:obData.pwHash,avatar:''})});
+    const freshD=defaultData(obData.name,'@'+obData.username);
+    freshD.profile.accentIdx=obData.accentIdx;
+    freshD.profile.theme=obData.theme;
+    freshD.profile.font=obData.font;
+    await sbFetch('/rest/v1/myflow',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:'user_'+newId,data:freshD,updated_at:new Date().toISOString()})});
+    currentUser={id:newId,username:obData.username,displayName:obData.name};
     D=freshD;saveLocal(D);
-    unlockApp();
-  }catch(e){err.textContent='Error creating account: '+e.message;err.style.color='#f87171';}
+    showObWelcome();
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Create my account →';}
+    const err=document.getElementById('lock-err');
+    if(err){err.textContent='Error: '+e.message;err.style.color='#f87171';}
+  }
+}
+
+// Step 4: Welcome screen (Playfair Display)
+function showObWelcome(){
+  const content=document.getElementById('lock-content');
+  const firstName=obData.name.split(' ')[0];
+  content.innerHTML=`
+    <div class="ob-steps"><div class="ob-dot done"></div><div class="ob-dot done"></div><div class="ob-dot done"></div><div class="ob-dot active"></div></div>
+    <div class="ob-welcome">
+      <div class="ob-welcome-logo">icarus</div>
+      <div class="ob-welcome-name">Welcome, ${esc(firstName)}.</div>
+      <div class="ob-welcome-sub">Your dashboard is ready.<br>The sky is yours to navigate.</div>
+    </div>
+    <button class="setup-btn" onclick="unlockApp()" style="font-family:'Playfair Display',serif;font-style:italic;font-size:15px">Enter icarus →</button>`;
 }
 
 function unlockApp(){
