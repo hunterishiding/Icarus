@@ -470,6 +470,7 @@ async function sbFetch(path,opts={}){
   const url=CFG.url.replace(/\/$/,'')+path;
   const res=await fetch(url,{...opts,headers:{'Content-Type':'application/json','apikey':CFG.key,'Authorization':'Bearer '+CFG.key,...(opts.headers||{})}});
   if(!res.ok){const t=await res.text();throw new Error(t);}
+  if(res.status===204||res.headers.get('content-length')==='0') return {};
   return res.json();
 }
 
@@ -479,6 +480,7 @@ async function pushToSupabase(){
   try{
     await sbFetch('/rest/v1/myflow?id=eq.main',{
       method:'PATCH',
+      headers:{'Prefer':'return=minimal'},
       body:JSON.stringify({data:D,updated_at:new Date().toISOString()})
     });
     setSyncUI('synced');
