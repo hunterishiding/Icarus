@@ -21,7 +21,8 @@
 .theme-midnight{--bg:#080b14;--bg2:#0d1220;--bg3:#121929;--bg4:#1a2236;--border:rgba(100,140,255,.08);--border2:rgba(100,140,255,.16);--text:#e8eeff;--text2:#8899cc;--text3:#445577}
 .theme-warm{--bg:#12100e;--bg2:#1a1714;--bg3:#221f1b;--bg4:#2c2923;--border:rgba(255,200,100,.07);--border2:rgba(255,200,100,.14);--text:#f5f0e8;--text2:#a09070;--text3:#6a5840}
 .theme-gruvbox{--bg:#282828;--bg2:#32302f;--bg3:#3c3836;--bg4:#504945;--border:rgba(168,153,132,.12);--border2:rgba(168,153,132,.22);--text:#ebdbb2;--text2:#a89984;--text3:#665c54}
-.theme-minimal{--bg:#fafaf8;--bg2:#ffffff;--bg3:#f4f3ef;--bg4:#ebe9e3;--border:rgba(0,0,0,.06);--border2:rgba(0,0,0,.11);--text:#1c1b18;--text2:#6b6860;--text3:#b0ae a8}
+.theme-gruvbox-light{--bg:#f9f5d7;--bg2:#fbf1c7;--bg3:#f2e5bc;--bg4:#ebdbb2;--border:rgba(60,56,54,.1);--border2:rgba(60,56,54,.2);--text:#3c3836;--text2:#7c6f64;--text3:#a89984}
+.theme-minimal{--bg:#fafaf8;--bg2:#ffffff;--bg3:#f4f3ef;--bg4:#ebe9e3;--border:rgba(0,0,0,.06);--border2:rgba(0,0,0,.11);--text:#1c1b18;--text2:#6b6860;--text3:#b0aea8}
 
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;transition:background .3s,color .3s;overflow:hidden}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
@@ -97,6 +98,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .tag-proj{background:rgba(45,212,191,.1);color:#2dd4bf}
 .tag-personal{background:rgba(251,191,36,.1);color:#fbbf24}
 .tag-health{background:rgba(74,222,128,.1);color:#4ade80}
+.tag-other{background:rgba(148,163,184,.1);color:#94a3b8}
 .task-due{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
 .task-due.overdue{color:#f87171}
 .task-del{background:none;border:none;color:var(--text3);cursor:pointer;opacity:0;padding:2px 4px;font-size:13px;transition:opacity .15s;flex-shrink:0}
@@ -122,6 +124,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .cal-day.today{background:var(--accent-dim);color:var(--accent);font-weight:500}
 .cal-day.selected{background:var(--accent);color:#fff;font-weight:500}
 .cal-day.other-month{opacity:.3}
+.cal-day.cal-range-start{background:var(--accent);color:#fff;border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+.cal-day.cal-range-end{background:var(--accent);color:#fff;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.cal-day.cal-range-mid{background:var(--accent-dim);color:var(--accent);border-radius:0}
 .cal-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);position:absolute;bottom:2px;left:50%;transform:translateX(-50%)}
 .cal-day.today .cal-dot,.cal-day.selected .cal-dot{background:#fff}
 .event-list{margin-top:12px;display:flex;flex-direction:column;gap:5px}
@@ -255,7 +260,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .login-left-art{position:absolute;inset:0;pointer-events:none}
 /* Gruvbox-inspired retro stripes */
 .login-stripe{position:absolute;left:0;right:0;opacity:.18}
-.login-wordmark{font-size:42px;font-weight:500;letter-spacing:-.04em;color:var(--accent);position:relative;z-index:1}
+.login-wordmark{font-family:'Playfair Display',serif;font-size:52px;font-style:italic;font-weight:400;letter-spacing:-.02em;color:var(--accent);position:relative;z-index:1;line-height:1.1}
+.login-wordmark span.wm-i{font-style:normal;font-weight:500;letter-spacing:-.04em}
+.login-wordmark span.wm-tail{font-size:38px;opacity:.7}
 .login-tagline{font-size:13px;color:var(--text3);font-family:var(--font-mono);position:relative;z-index:1;line-height:1.6}
 .login-footer{font-size:11px;color:var(--text3);font-family:var(--font-mono);position:relative;z-index:1;opacity:.5}
 /* Right form panel */
@@ -357,6 +364,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .toast-dot{width:7px;height:7px;border-radius:50%;background:#fbbf24;flex-shrink:0}
 .toast-close{background:none;border:none;color:var(--text3);cursor:pointer;margin-left:6px;font-size:14px}
 
+/* ── Day picker ── */
+.day-picker{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.day-pill{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:11px;font-family:var(--font-mono);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;flex-shrink:0}
+.day-pill:hover{border-color:var(--accent);color:var(--accent)}
+.day-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
 /* ── Modal ── */
 #modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
 #modal-overlay.open{display:flex}
@@ -401,7 +414,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <!-- Left decorative panel -->
   <div class="login-left">
     <div class="login-left-art" id="login-art"></div>
-    <div class="login-wordmark">icarus</div>
+    <div class="login-wordmark"><span class="wm-i">I</span>carus</div>
     <div class="login-tagline">your personal dashboard<br>tasks · goals · notes · calendar</div>
     <div class="login-footer">v2 · gruvbox edition</div>
   </div>
@@ -470,7 +483,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       <div id="tasks-list"></div>
       <div class="add-row">
         <input id="task-input" placeholder="New task…" onkeydown="if(event.key==='Enter')addTask()">
-        <select id="task-tag"><option value="uni">uni</option><option value="proj">project</option><option value="personal">personal</option><option value="health">health</option></select>
+        <select id="task-tag"><option value="personal">personal</option><option value="uni">uni</option><option value="proj">project</option><option value="health">health</option><option value="other">other</option></select>
+        <select id="task-recur"><option value="none">once</option><option value="daily">daily</option><option value="weekly">weekly</option><option value="monthly">monthly</option></select>
         <input id="task-due" type="date" style="width:130px">
         <button class="btn-add" onclick="addTask()">Add</button>
       </div>
@@ -604,6 +618,7 @@ const THEMES=[
   {id:'midnight',label:'Midnight'},
   {id:'warm',label:'Warm'},
   {id:'gruvbox',label:'Gruvbox'},
+  {id:'gruvbox-light',label:'Gruvbox Light'},
   {id:'minimal',label:'Minimal'},
 ];
 const FONTS=[
@@ -923,7 +938,7 @@ function showObStep1(canGoBack){
   const content=document.getElementById('lock-content');
   content.innerHTML=`
     ${_obSteps(0)}
-    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Join icarus</div>
+    <div class="setup-title" style="font-family:'Playfair Display',serif;font-style:italic;text-align:center;margin-bottom:4px">Join <span style="font-style:normal;font-weight:500">I</span>carus</div>
     <div class="setup-sub" style="text-align:center;margin-bottom:18px">No email needed. Pick a name and password.</div>
     <div class="setup-label">Display name</div>
     <input class="setup-input" type="text" id="reg-name" placeholder="Your name" autocomplete="off" maxlength="32" value="${esc(obData.name)}">
@@ -1024,7 +1039,8 @@ function obPickAccent(idx,el){
 
 // ── Step 4: Theme ─────────────────────────────────────────────────────────
 const OB_THEMES=[
-  {id:'gruvbox',label:'Gruvbox',dots:['#282828','#ebdbb2','#d79921'],desc:'warm retro'},
+  {id:'gruvbox',label:'Gruvbox',dots:['#282828','#ebdbb2','#d79921'],desc:'warm retro dark'},
+  {id:'gruvbox-light',label:'Gruvbox Light',dots:['#f9f5d7','#3c3836','#d79921'],desc:'warm retro light'},
   {id:'dark',label:'Dark',dots:['#0f0f11','#f0eff4','#8b7cf8'],desc:'clean dark'},
   {id:'midnight',label:'Midnight',dots:['#080b14','#e8eeff','#6b9ab8'],desc:'deep blue'},
   {id:'warm',label:'Warm',dots:['#12100e','#f5f0e8','#c09030'],desc:'cozy amber'},
@@ -1125,7 +1141,7 @@ function showObWelcome(){
   content.innerHTML=`
     <div style="text-align:center;padding:8px 0 4px">
       ${pfpHtml}
-      <div style="font-family:'Playfair Display',serif;font-size:48px;font-style:italic;color:${accent.hex};line-height:1;margin-bottom:12px;letter-spacing:-.01em">icarus</div>
+      <div style="font-family:'Playfair Display',serif;font-size:54px;font-style:italic;color:${accent.hex};line-height:1;margin-bottom:12px;letter-spacing:-.02em"><span style="font-style:normal;font-weight:500;letter-spacing:-.04em">I</span>carus</div>
       <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:500;color:var(--text);margin-bottom:6px">Welcome, ${esc(firstName)}.</div>
       <div style="font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:8px">
         Your dashboard is ready.<br>
@@ -1311,7 +1327,7 @@ function renderPage(name){
 function renderHome(){
   const pending=D.tasks.filter(t=>!t.done);
   const done=D.tasks.filter(t=>t.done).length;
-  const upcoming=D.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date));
+  const upcoming=D.events.filter(e=>(e.endDate||e.date)>=today()).sort((a,b)=>a.date.localeCompare(b.date));
   const streak=D.goals.length?Math.max(...D.goals.map(g=>g.streak)):0;
   document.getElementById('stats-row').innerHTML=`
     <div class="stat-card"><div class="stat-label">pending</div><div class="stat-val">${pending.length}</div><div class="stat-sub">${done} done</div></div>
@@ -1319,39 +1335,129 @@ function renderHome(){
     <div class="stat-card"><div class="stat-label">streak</div><div class="stat-val" style="color:var(--accent)">${streak}</div><div class="stat-sub">days</div></div>
     <div class="stat-card"><div class="stat-label">notes</div><div class="stat-val">${D.notes.length}</div><div class="stat-sub">saved</div></div>`;
   document.getElementById('home-tasks').innerHTML=D.tasks.slice(0,5).map(t=>taskHTML(t,true)).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">No tasks yet</p>';
-  document.getElementById('home-events').innerHTML=upcoming.slice(0,4).map(e=>`<div class="event-item"><div class="event-dot" style="background:${e.color||'var(--accent)'}"></div><div class="event-title">${esc(e.title)}</div><div class="event-time-label">${fmtDate(e.date)}</div></div>`).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">Nothing coming up</p>';
+  document.getElementById('home-events').innerHTML=upcoming.slice(0,4).map(e=>`<div class="event-item"><div class="event-dot" style="background:${e.color||'var(--accent)'}"></div><div class="event-title">${esc(e.title)}</div><div class="event-time-label">${e.endDate&&e.endDate!==e.date?fmtDate(e.date)+' → '+fmtDate(e.endDate):fmtDate(e.date)}</div></div>`).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">Nothing coming up</p>';
   document.getElementById('home-goals').innerHTML=D.goals.length?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">`+D.goals.map(g=>`<div style="padding:6px 0"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:var(--text)">${esc(g.name)}</span><span style="font-size:10px;font-family:var(--font-mono);color:var(--text3)">${g.progress}%</span></div><div class="progress"><div class="progress-fill" style="width:${g.progress}%;background:${g.color}"></div></div><div class="goal-streak">streak: ${g.streak}d</div></div>`).join('')+'</div>':'<p style="font-size:12px;color:var(--text3)">No goals yet</p>';
   applySettings();
 }
 
 // ── Tasks ─────────────────────────────────────────────────────────────────
-function taskHTML(t,compact){return `<div class="task-item"><div class="task-cb${t.done?' done':''}" onclick="toggleTask('${t.id}')"></div><div class="task-body"><div class="task-text${t.done?' done':''}">${esc(t.text)}</div><div class="task-meta"><span class="tag tag-${t.tag}">${t.tag}</span>${t.due?`<span class="task-due${isOverdue(t.due)&&!t.done?' overdue':''}">${fmtDate(t.due)}</span>`:''}</div></div>${compact?'':`<button class="task-del" onclick="deleteTask('${t.id}')">✕</button>`}</div>`;}
+function nextDueDate(due, recur){
+  if(!due||!recur||recur==='none')return '';
+  const d=new Date(due+'T00:00:00');
+  if(recur==='daily')d.setDate(d.getDate()+1);
+  else if(recur==='weekly')d.setDate(d.getDate()+7);
+  else if(recur==='monthly')d.setMonth(d.getMonth()+1);
+  return d.toISOString().split('T')[0];
+}
+function recurLabel(r){return r&&r!=='none'?`<span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)" title="Repeats ${r}">↻ ${r}</span>`:'';}
+function taskHTML(t,compact){
+  return `<div class="task-item">
+    <div class="task-cb${t.done?' done':''}" onclick="toggleTask('${t.id}')"></div>
+    <div class="task-body">
+      <div class="task-text${t.done?' done':''}">${esc(t.text)}</div>
+      <div class="task-meta">
+        <span class="tag tag-${t.tag}">${t.tag}</span>
+        ${t.due?`<span class="task-due${isOverdue(t.due)&&!t.done?' overdue':''}">${fmtDate(t.due)}</span>`:''}
+        ${recurLabel(t.recur)}
+      </div>
+    </div>
+    ${compact?'':`<button class="task-del" onclick="deleteTask('${t.id}')">✕</button>`}
+  </div>`;
+}
 function renderTasks(){document.getElementById('tasks-list').innerHTML=D.tasks.map(t=>taskHTML(t,false)).join('')||'<p style="font-size:12px;color:var(--text3);padding:8px 0">No tasks yet.</p>';}
-function addTask(){const txt=document.getElementById('task-input').value.trim();if(!txt)return;D.tasks.unshift({id:uid(),text:txt,tag:document.getElementById('task-tag').value,due:document.getElementById('task-due').value,done:false});document.getElementById('task-input').value='';document.getElementById('task-due').value='';schedSave();renderTasks();}
-function toggleTask(id){const t=D.tasks.find(t=>t.id===id);if(t){t.done=!t.done;schedSave();renderTasks();}}
+function addTask(){
+  const txt=document.getElementById('task-input').value.trim();
+  if(!txt)return;
+  const recur=document.getElementById('task-recur').value;
+  D.tasks.unshift({id:uid(),text:txt,tag:document.getElementById('task-tag').value,due:document.getElementById('task-due').value,recur,done:false});
+  document.getElementById('task-input').value='';
+  document.getElementById('task-due').value='';
+  document.getElementById('task-recur').value='none';
+  schedSave();renderTasks();
+}
+function toggleTask(id){
+  const t=D.tasks.find(t=>t.id===id);
+  if(!t)return;
+  if(t.recur&&t.recur!=='none'&&!t.done){
+    // Complete it and immediately spawn the next occurrence
+    t.done=true;
+    const next=nextDueDate(t.due,t.recur);
+    D.tasks.unshift({id:uid(),text:t.text,tag:t.tag,due:next,recur:t.recur,done:false});
+  } else {
+    t.done=!t.done;
+  }
+  schedSave();renderTasks();
+}
 function deleteTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);schedSave();renderTasks();}
 
 // ── Calendar ──────────────────────────────────────────────────────────────
 const MONTHS_L=['January','February','March','April','May','June','July','August','September','October','November','December'];
 let calMonth=new Date().getMonth(),calYear=new Date().getFullYear(),selDay=null;
 function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+// Returns true if date string ds falls within event e's range and allowed days
+function eventCoversDay(e,ds){
+  const start=e.date;
+  const end=e.endDate||e.date;
+  if(ds<start||ds>end)return false;
+  // If specific days selected, check day of week (0=Mon…6=Sun)
+  if(e.days&&e.days.length>0){
+    const dow=new Date(ds+'T00:00:00').getDay(); // 0=Sun…6=Sat
+    const mapped=dow===0?6:dow-1; // convert to 0=Mon…6=Sun
+    return e.days.includes(mapped);
+  }
+  return true;
+}
+
 function renderCalendar(){
   document.getElementById('cal-month-label').textContent=`${MONTHS_L[calMonth]} ${calYear}`;
   const first=new Date(calYear,calMonth,1);let dow=first.getDay();if(dow===0)dow=7;
   const dim=new Date(calYear,calMonth+1,0).getDate(),prev=new Date(calYear,calMonth,0).getDate(),td=today();
   let h=['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>`<div class="cal-hdr">${x}</div>`).join('');
   for(let i=dow-1;i>0;i--)h+=`<div class="cal-day other-month">${prev-i+1}</div>`;
-  for(let d=1;d<=dim;d++){const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const hasEv=D.events.some(e=>e.date===ds);h+=`<div class="cal-day${ds===td?' today':''}${ds===selDay?' selected':''}" onclick="selCalDay('${ds}')">${d}${hasEv?'<div class="cal-dot"></div>':''}</div>`;}
+  for(let d=1;d<=dim;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const eventsOnDay=D.events.filter(e=>eventCoversDay(e,ds));
+    const hasEv=eventsOnDay.length>0;
+    const isStart=eventsOnDay.some(e=>e.date===ds);
+    const isEnd=eventsOnDay.some(e=>(e.endDate||e.date)===ds);
+    const isMiddle=eventsOnDay.some(e=>e.date<ds&&(e.endDate||e.date)>ds);
+    let rangeClass=hasEv?(isMiddle&&!isStart&&!isEnd?' cal-range-mid':isStart&&isEnd?'':isStart?' cal-range-start':isEnd?' cal-range-end':''):'';
+    h+=`<div class="cal-day${ds===td?' today':''}${ds===selDay?' selected':''}${rangeClass}" onclick="selCalDay('${ds}')">${d}${hasEv&&(isStart||(!isStart&&!isEnd&&ds===ds))?`<div class="cal-dot"></div>`:''}</div>`;
+  }
   document.getElementById('cal-grid').innerHTML=h;
-  // stack on mobile
   const wrap=document.getElementById('cal-grid-wrapper');
   if(wrap)wrap.style.gridTemplateColumns=window.innerWidth<681?'1fr':'1fr 1fr';
   renderEventList();
 }
+
 function selCalDay(ds){selDay=ds;document.getElementById('cal-sel-label').textContent=`Events — ${fmtDate(ds)}`;renderCalendar();}
+
+function fmtDateRange(e){
+  if(!e.endDate||e.endDate===e.date)return fmtDate(e.date);
+  return `${fmtDate(e.date)} → ${fmtDate(e.endDate)}`;
+}
+
 function renderEventList(){
-  const evts=selDay?D.events.filter(e=>e.date===selDay):D.events.filter(e=>e.date.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)).sort((a,b)=>a.date.localeCompare(b.date));
-  document.getElementById('event-list').innerHTML=evts.map(e=>`<div class="event-item"><div class="event-dot" style="background:${e.color||'var(--accent)'}"></div><div class="event-title">${esc(e.title)}</div><div class="event-time-label">${e.time||fmtDate(e.date)}</div><button class="event-del" onclick="deleteEvent('${e.id}')">✕</button></div>`).join('')||`<p style="font-size:12px;color:var(--text3);padding:6px 0">No events${selDay?' here':' this month'}</p>`;
+  const DAY_LABELS=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  const monthStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const evts=selDay
+    ?D.events.filter(e=>eventCoversDay(e,selDay))
+    :D.events.filter(e=>e.date.startsWith(monthStr)||(e.endDate&&e.endDate>=monthStr+'-01'&&e.date<=monthStr+'-31')).sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('event-list').innerHTML=evts.map(e=>{
+    const dayTags=e.days&&e.days.length>0
+      ?`<div style="display:flex;gap:3px;margin-top:4px">${e.days.map(d=>`<div style="width:20px;height:20px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:9px;font-family:var(--font-mono);display:flex;align-items:center;justify-content:center">${DAY_LABELS[d]}</div>`).join('')}</div>`
+      :'';
+    return `<div class="event-item" style="flex-direction:column;align-items:flex-start;gap:4px">
+      <div style="display:flex;align-items:center;gap:9px;width:100%">
+        <div class="event-dot" style="background:${e.color||'var(--accent)'}"></div>
+        <div class="event-title">${esc(e.title)}</div>
+        <div class="event-time-label">${e.endDate&&e.endDate!==e.date?fmtDateRange(e):e.time||fmtDate(e.date)}</div>
+        <button class="event-del" onclick="deleteEvent('${e.id}')">✕</button>
+      </div>
+      ${dayTags}
+    </div>`;
+  }).join('')||`<p style="font-size:12px;color:var(--text3);padding:6px 0">No events${selDay?' here':' this month'}</p>`;
 }
 function deleteEvent(id){D.events=D.events.filter(e=>e.id!==id);schedSave();renderCalendar();}
 
@@ -1375,8 +1481,62 @@ function deleteProject(id){D.projects=D.projects.filter(p=>p.id!==id);schedSave(
 // ── Modals ────────────────────────────────────────────────────────────────
 function showModal(h){document.getElementById('modal-body').innerHTML=h;document.getElementById('modal-overlay').classList.add('open');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
-function openEventModal(){showModal(`<div class="modal-title">New event</div><input id="m-et" placeholder="Event title"><div class="modal-row"><input id="m-ed" type="date" value="${today()}"><input id="m-eim" type="time" value="10:00"></div><select id="m-ec"><option value="var(--accent)">Accent</option><option value="#34d399">Green</option><option value="#fbbf24">Amber</option><option value="#f87171">Red</option><option value="#2dd4bf">Teal</option></select><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addEvent()">Add</button></div>`);}
-function addEvent(){const t=document.getElementById('m-et').value.trim();if(!t)return;D.events.push({id:uid(),title:t,date:document.getElementById('m-ed').value,time:document.getElementById('m-eim').value,color:document.getElementById('m-ec').value});schedSave();closeModal();renderCalendar();}
+// Day picker state for event modal
+let _evDays=new Set();
+function _toggleEvDay(d,el){
+  if(_evDays.has(d)){_evDays.delete(d);el.classList.remove('active');}
+  else{_evDays.add(d);el.classList.add('active');}
+}
+
+function openEventModal(){
+  _evDays=new Set();
+  const dayNames=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  const dayPills=dayNames.map((d,i)=>`<div class="day-pill" onclick="_toggleEvDay(${i},this)">${d}</div>`).join('');
+  showModal(`
+  <div class="modal-title">New event</div>
+  <input id="m-et" placeholder="Event title">
+  <div style="font-size:10px;font-family:var(--font-mono);color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Repeats on days</div>
+  <div class="day-picker">${dayPills}</div>
+  <div class="modal-row">
+    <div style="flex:1">
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Start date</div>
+      <input id="m-ed" type="date" value="${today()}" style="width:100%">
+    </div>
+    <div style="flex:1">
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">End date <span style="opacity:.5">(optional)</span></div>
+      <input id="m-ed2" type="date" style="width:100%">
+    </div>
+  </div>
+  <input id="m-eim" type="time" value="10:00">
+  <select id="m-ec">
+    <option value="var(--accent)">Accent</option>
+    <option value="#34d399">Green</option>
+    <option value="#fbbf24">Amber</option>
+    <option value="#f87171">Red</option>
+    <option value="#2dd4bf">Teal</option>
+  </select>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    <button class="btn-save" onclick="addEvent()">Add</button>
+  </div>`);
+}
+
+function addEvent(){
+  const t=document.getElementById('m-et').value.trim();
+  if(!t)return;
+  const startDate=document.getElementById('m-ed').value;
+  const endDate=document.getElementById('m-ed2').value;
+  const days=_evDays.size>0?Array.from(_evDays).sort():[];
+  D.events.push({
+    id:uid(),title:t,
+    date:startDate,
+    endDate:endDate&&endDate>startDate?endDate:startDate,
+    days, // [] means all days / single day; [0,2,4] means Mon/Wed/Fri
+    time:document.getElementById('m-eim').value,
+    color:document.getElementById('m-ec').value
+  });
+  schedSave();closeModal();renderCalendar();
+}
 function openNoteModal(){showModal(`<div class="modal-title">New note</div><input id="m-nt" placeholder="Title"><textarea id="m-nb" style="min-height:120px" placeholder="Write anything…"></textarea><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addNote()">Save</button></div>`);}
 function addNote(){const t=document.getElementById('m-nt').value.trim()||'Untitled';const b=document.getElementById('m-nb').value.trim();D.notes.unshift({id:uid(),title:t,body:b,created:today()});schedSave();closeModal();renderNotes();}
 function openGoalModal(){showModal(`<div class="modal-title">New goal</div><input id="m-gn" placeholder="Goal name"><select id="m-gc"><option value="var(--accent)">Accent</option><option value="#34d399">Green</option><option value="#fbbf24">Amber</option><option value="#2dd4bf">Teal</option><option value="#f87171">Red</option></select><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addGoal()">Add</button></div>`);}
@@ -1389,12 +1549,36 @@ let pomoOpen=false,pomoRunning=false,pomoInterval=null;
 let pomoSecs=25*60,pomoSession=1,pomoIsBreak=false;
 const POMO_WORK=25*60,POMO_BREAK=5*60;
 function togglePomo(){pomoOpen=!pomoOpen;document.getElementById('pomo-widget').classList.toggle('open',pomoOpen);}
+
+function playPomoChime(isBreak){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const notes=isBreak?[523,659,784]:[784,659,523]; // C5-E5-G5 up for break, down for focus
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=freq;
+      const t=ctx.currentTime+i*0.18;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.18,t+0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.45);
+      osc.start(t);osc.stop(t+0.45);
+    });
+  }catch(e){/* audio not available */}
+}
+
 function pomoTick(){
   pomoSecs--;
   if(pomoSecs<0){
     clearInterval(pomoInterval);pomoRunning=false;
-    if(!pomoIsBreak){pomoSession++;pomoIsBreak=true;pomoSecs=POMO_BREAK;showToast('Break time! 5 minutes.');}
-    else{pomoIsBreak=false;pomoSecs=POMO_WORK;showToast('Back to focus!');}
+    if(!pomoIsBreak){
+      playPomoChime(true);
+      pomoSession++;pomoIsBreak=true;pomoSecs=POMO_BREAK;showToast('Break time! 5 minutes.');
+    } else {
+      playPomoChime(false);
+      pomoIsBreak=false;pomoSecs=POMO_WORK;showToast('Back to focus!');
+    }
     document.getElementById('pomo-start-btn').textContent='Start';
   }
   updatePomoUI();
