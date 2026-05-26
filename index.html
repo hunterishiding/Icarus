@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html class="dark" lang="en">
 <head>
@@ -7,42 +8,1206 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Literata:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-
 <style>
-  /* Dark mode theme styling (Productive Serenity), Modals, Toast, and Panel CSS layout modifications */
-  body { background-color:#121410; color:#e3e3dc; font-family:'Hanken Grotesk',sans-serif; }
-  /* ... Custom scrollbars, watermark backgrounds, and animations ... */
+body { background-color:#121410; color:#e3e3dc; font-family:'Hanken Grotesk',sans-serif; }
+.material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+.stripe-motif { display:flex; height:4px; width:100%; overflow:hidden; }
+.stripe-1 { background-color:#5a7a4a; flex:1; }
+.stripe-2 { background-color:#6b9ab8; flex:1; }
+.stripe-3 { background-color:#c09030; flex:1; }
+.stripe-4 { background-color:#cc3333; flex:1; }
+.motif-4-stripe { height:4px; width:100%; background:linear-gradient(to right,#5a7a4a 25%,#194e69 25% 50%,#946a03 50% 75%,#93000a 75%); }
+.cherry-blossom-watermark { position:absolute; bottom:-20px; right:-20px; opacity:0.05; pointer-events:none; width:200px; height:200px; background-image:radial-gradient(circle,#fce4ec 2px,transparent 2px); background-size:20px 20px; }
+.custom-scrollbar::-webkit-scrollbar { width:4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background:#1a1c18; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background:#43483f; }
+.bloom-hover:hover { box-shadow:0 0 15px 2px rgba(252,228,236,0.15); }
+.gruvbox-texture { background-image:url('https://lh3.googleusercontent.com/aida-public/AB6AXuBb9Bbrb6axV74RkkcgJLFm3VVPFNkx2IH-dRcg2s7wYC19O4duHgDns2ueO0zbzZB79RCFtc3nsbavFVxyV_cOcH9YC_QvjbOsjsG2lt4JA1R3xI9AeoJFe4CgGLgaOW8YZ3JOoVk4-7unnIARQ_08ncRfvs5O9kvjrq4Qccc4AL7mfrelM-SYbHaSKpRRad-mbbuZ3iMKhTIG3xdvecOCLlygpoJ8EWnH47ALpVOUHthRBhCsC0WLGbZCNBwlfwzqmR85YwdrOsM'); opacity:0.03; pointer-events:none; }
+/* Page system */
+.app-page { display:none; }
+.app-page.active { display:block; }
+/* Lock screen overlay */
+#lock-screen { position:fixed; inset:0; z-index:100; }
+#lock-screen.hidden { display:none; }
+/* Toast */
+#toast-bar { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1e201c; border:1px solid #43483f; border-radius:8px; padding:10px 18px; font-size:13px; color:#e3e3dc; z-index:200; opacity:0; pointer-events:none; transition:opacity .3s; white-space:nowrap; }
+#toast-bar.show { opacity:1; pointer-events:auto; }
+/* Modal */
+#modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:150; display:none; align-items:center; justify-content:center; padding:16px; }
+#modal-overlay.open { display:flex; }
+.modal-box { background:#1e201c; border:1px solid #43483f; border-radius:12px; padding:24px; width:480px; max-width:100%; max-height:90vh; overflow-y:auto; }
+.modal-box input, .modal-box textarea, .modal-box select { width:100%; background:#292b26; border:1px solid #43483f; border-radius:6px; padding:8px 12px; color:#e3e3dc; font-family:'Hanken Grotesk',sans-serif; font-size:13px; outline:none; margin-bottom:10px; }
+.modal-box input:focus, .modal-box textarea:focus, .modal-box select:focus { border-color:#add199; }
+.modal-box textarea { resize:vertical; min-height:80px; }
+.modal-box select option { background:#292b26; }
+.modal-row { display:flex; gap:8px; }
+.modal-row input, .modal-row select { flex:1; }
+.modal-footer { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
+.btn-cancel { background:#292b26; border:1px solid #43483f; border-radius:6px; color:#c3c8bb; padding:8px 14px; font-size:13px; cursor:pointer; font-family:'Hanken Grotesk',sans-serif; }
+.btn-save { background:#add199; border:none; border-radius:6px; color:#1b370f; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Hanken Grotesk',sans-serif; }
+/* Pomo widget */
+#pomo-widget { position:fixed; bottom:80px; right:20px; z-index:90; background:#1e201c; border:1px solid #43483f; border-radius:12px; padding:18px; width:200px; display:none; }
+#pomo-widget.open { display:block; }
+/* Sync dot */
+.sync-dot { width:7px; height:7px; border-radius:50%; display:inline-block; background:#8d9287; }
+.sync-dot.synced { background:#add199; }
+.sync-dot.syncing { background:#f3be5a; animation:pulse 1s infinite; }
+.sync-dot.error { background:#ffb4ab; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* Announce bar */
+#announce-bar { display:none; background:rgba(173,209,153,.08); border-bottom:1px solid rgba(173,209,153,.2); padding:8px 24px; align-items:center; gap:10px; font-size:13px; }
+/* Claude panel */
+#claude-panel { position:fixed; right:0; top:0; bottom:0; width:320px; background:#1e201c; border-left:1px solid #43483f; display:flex; flex-direction:column; z-index:80; transform:translateX(100%); transition:transform .25s; }
+#claude-panel.open { transform:translateX(0); }
+.claude-msgs { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:9px; }
+.msg-ai { background:#292b26; border-radius:4px 12px 12px 12px; padding:9px 11px; font-size:12px; color:#e3e3dc; line-height:1.55; max-width:95%; border:1px solid #43483f; white-space:pre-wrap; }
+.msg-user { background:rgba(173,209,153,.12); border:1px solid rgba(173,209,153,.2); border-radius:12px 4px 12px 12px; padding:9px 11px; font-size:12px; color:#e3e3dc; line-height:1.55; max-width:95%; align-self:flex-end; }
 </style>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode:"class",
+  theme:{
+    extend:{
+      colors:{
+        "secondary-fixed":"#c6e7ff","on-secondary-container":"#8fbede","on-tertiary-container":"#fff6ed","on-secondary-fixed":"#001e2d","outline-variant":"#43483f","secondary-container":"#194e69","tertiary-fixed":"#ffdea8","error-container":"#93000a","tertiary-container":"#946a03","on-secondary":"#00344b","surface-container-high":"#292b26","on-tertiary-fixed-variant":"#5e4200","surface-bright":"#383a35","surface-container-highest":"#343531","on-surface-variant":"#c3c8bb","on-primary":"#1b370f","primary-container":"#5a7a4a","surface-tint":"#add199","on-primary-fixed":"#062100","on-background":"#e3e3dc","surface-dim":"#121410","surface-variant":"#343531","tertiary-fixed-dim":"#f3be5a","background":"#121410","inverse-on-surface":"#2f312d","on-error-container":"#ffdad6","error":"#ffb4ab","primary-fixed":"#c9edb3","on-tertiary-fixed":"#271900","on-error":"#690005","primary-fixed-dim":"#add199","on-primary-fixed-variant":"#314e23","surface-container-low":"#1a1c18","surface":"#121410","primary":"#add199","on-tertiary":"#422d00","secondary":"#9dcdec","inverse-primary":"#486739","surface-container":"#1e201c","on-secondary-fixed-variant":"#164c66","surface-container-lowest":"#0d0f0b","secondary-fixed-dim":"#9dcdec","on-primary-container":"#e6ffd4","on-surface":"#e3e3dc","inverse-surface":"#e3e3dc","tertiary":"#f3be5a","outline":"#8d9287"
+      },
+      borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},
+      spacing:{"container-max":"1280px","gutter":"24px","xl":"48px","md":"16px","lg":"24px","unit":"4px","xs":"4px","sm":"8px"},
+      fontFamily:{"body-lg":["Hanken Grotesk"],"label-sm":["JetBrains Mono"],"headline-lg-mobile":["Literata"],"body-md":["Hanken Grotesk"],"display-lg":["Literata"],"headline-lg":["Literata"],"label-md":["JetBrains Mono"]},
+      fontSize:{"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.03em","fontWeight":"500"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"600"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],"display-lg":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"0.05em","fontWeight":"500"}]}
+    }
+  }
+}
+</script>
 </head>
-
 <body class="bg-surface selection:bg-primary-container selection:text-on-primary-container">
 
-<div id="lock-screen"> ... </div>
-
-<div id="main-app" class="hidden">
-  
-  <div id="announce-bar"> ... </div>
-
-  <nav> ... </nav>
-
-  <div class="flex max-w-container-max mx-auto min-h-screen">
-    <aside> ... </aside> <main class="flex-1 p-lg lg:p-xl">
-      <div class="app-page active" id="page-home"> ... </div>
-      <div class="app-page" id="page-tasks"> ... </div>
-      <div class="app-page" id="page-calendar"> ... </div>
-      <div class="app-page" id="page-notes"> ... </div>
-      <div class="app-page" id="page-goals"> ... </div>
-      <div class="app-page" id="page-projects"> ... </div>
-      <div class="app-page" id="page-admin"> ... </div>
-    </main>
+<!-- ══════════════════════════════════════
+     LOCK / ONBOARDING SCREEN
+══════════════════════════════════════ -->
+<div id="lock-screen">
+  <div class="fixed inset-0 z-0 bg-cover bg-center" style="background-image:url('https://lh3.googleusercontent.com/aidaADBb0uhKvde6SYPmEk7Dg2Ygr4WkbSS1HgCNiuJSJpFC9uNFMtLrMDAIC1oK508uumav6eYKZ4c_Ml7vTBur856HMM0zXp5nbioW4tU_a383puRIR_KTd042i1jUGFHW7pTk4jFkUHQz1j_J9mvykqL85Sz-4MSPtz_eLr46GZWgOZ6PU7daZPn0FCxNL36fNl3msQtGdCCwCubEeuUAQn-gHb9du7Mp6NIdZaqHJjwz-7iSMUPUOmVBfEqwHNc');">
+    <div class="absolute inset-0 bg-background/60 backdrop-blur-[2px]"></div>
+    <div class="absolute inset-0 gruvbox-texture"></div>
   </div>
-
-  <button> ... </button>
+  <main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-md py-xl">
+    <header class="flex flex-col items-center mb-xl">
+      <img alt="Icarus" class="w-24 h-24 mb-md drop-shadow-xl" src="https://lh3.googleusercontent.com/aidaADBb0uhJ1vtBS9OYcY3pynyPSW7rVmzTsCHCupq3T_6zKvTh96XYghr-UGWg2Bk4SEy2CyUc_IM7H07j1B9JY6T4BXzBC8NOwsSDpNqF4pqO51rLQgUECk97Putq6s_D4_AZkMwjHd7mwYT5Oj43L9I4dh23f0_aiBPTBrU8MnxvMeTMbeBIYus8MhZFysqfCH4vh9ScnBcwXVUAziANP74I3AmL_LuPI1i54SjQrPtYPhdRinCP5k0bYEuJjDI">
+      <h1 class="font-display-lg text-display-lg text-primary tracking-tight">Icarus</h1>
+      <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mt-xs opacity-80">Productive Serenity</p>
+    </header>
+    <div class="w-full max-w-2xl" id="lock-content">
+      <div class="text-center text-on-surface-variant font-label-md py-xl">Loading…</div>
+    </div>
+  </main>
 </div>
 
-<div id="settings-panel"> ... </div>
-<div id="claude-panel"> ... </div>
-<div id="pomo-widget"> ... </div> <div id="toast-bar"> ... </div>
+<!-- ══════════════════════════════════════
+     MAIN APP (hidden until login)
+══════════════════════════════════════ -->
+<div id="main-app" class="hidden">
 
+<!-- Announce bar -->
+<div id="announce-bar">
+  <span class="material-symbols-outlined text-primary text-[18px]">campaign</span>
+  <span id="announce-text" class="flex-1 text-on-surface font-body-md"></span>
+  <button onclick="dismissAnnounce()" class="material-symbols-outlined text-on-surface-variant hover:text-primary text-[18px]">close</button>
+</div>
+
+<!-- Top Nav (Stitch design preserved) -->
+<nav class="bg-surface border-b border-outline-variant/30 sticky top-0 z-50 flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+  <div class="flex items-center gap-lg">
+    <div class="flex items-center gap-sm">
+      <span class="font-display-lg text-display-lg font-bold text-primary text-2xl" style="font-family:'Literata',serif" id="nav-logo">Icarus</span>
+    </div>
+    <div class="hidden md:flex gap-md ml-xl" id="nav-links">
+      <a class="text-on-surface-variant font-label-md hover:bg-secondary-container/10 transition-colors px-md py-sm rounded cursor-pointer" onclick="showPage('home')">Dashboard</a>
+      <a class="text-on-surface-variant font-label-md hover:bg-secondary-container/10 transition-colors px-md py-sm rounded cursor-pointer" onclick="showPage('projects')">Projects</a>
+      <a class="text-on-surface-variant font-label-md hover:bg-secondary-container/10 transition-colors px-md py-sm rounded cursor-pointer" onclick="showPage('calendar')">Calendar</a>
+      <a class="text-on-surface-variant font-label-md hover:bg-secondary-container/10 transition-colors px-md py-sm rounded cursor-pointer" onclick="showPage('tasks')">Tasks</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-md">
+    <button onclick="toggleClaude()" class="material-symbols-outlined text-primary hover:bg-secondary-container/10 p-sm rounded transition-colors" title="Ask Claude">chat</button>
+    <button onclick="togglePomo()" class="material-symbols-outlined text-primary hover:bg-secondary-container/10 p-sm rounded transition-colors" title="Pomodoro">timer</button>
+    <div class="flex items-center gap-xs bg-surface-container-low rounded px-sm py-xs border border-outline-variant/30 cursor-pointer" onclick="manualSync()">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span class="font-label-sm text-on-surface-variant text-[11px]" id="sync-label">Synced</span>
+    </div>
+    <div class="h-9 w-9 rounded-full bg-secondary-container/30 border border-outline-variant overflow-hidden cursor-pointer" onclick="toggleSettings()" id="nav-avatar">
+      <div class="w-full h-full flex items-center justify-center font-label-md text-secondary font-bold" id="nav-avatar-inner">H</div>
+    </div>
+  </div>
+</nav>
+
+<!-- App layout -->
+<div class="flex max-w-container-max mx-auto min-h-screen">
+
+  <!-- Sidebar (Stitch design) -->
+  <aside class="hidden md:flex flex-col h-screen w-64 sticky top-[57px] bg-surface-container border-r border-outline-variant/30 py-xl relative overflow-hidden before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-gradient-to-r before:from-primary before:via-secondary before:to-tertiary">
+    <div class="px-lg mb-xl">
+      <h2 class="font-headline-lg text-headline-lg text-primary text-xl" id="sidebar-title">Dashboard</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant opacity-70" id="sidebar-user">Loading…</p>
+    </div>
+    <nav class="flex-1 space-y-sm" id="sidebar-nav">
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" onclick="showPage('home')">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-label-md text-label-md">Dashboard</span>
+      </a>
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" onclick="showPage('tasks')">
+        <span class="material-symbols-outlined">checklist</span>
+        <span class="font-label-md text-label-md">Tasks</span>
+      </a>
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" onclick="showPage('calendar')">
+        <span class="material-symbols-outlined">event</span>
+        <span class="font-label-md text-label-md">Calendar</span>
+      </a>
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" onclick="showPage('notes')">
+        <span class="material-symbols-outlined">note_stack</span>
+        <span class="font-label-md text-label-md">Notes</span>
+      </a>
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" onclick="showPage('goals')">
+        <span class="material-symbols-outlined">track_changes</span>
+        <span class="font-label-md text-label-md">Goals</span>
+      </a>
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" onclick="showPage('projects')">
+        <span class="material-symbols-outlined">folder_open</span>
+        <span class="font-label-md text-label-md">Projects</span>
+      </a>
+      <a class="flex items-center gap-md text-on-surface-variant px-lg py-md hover:bg-secondary-container/10 hover:text-secondary transition-all duration-200 cursor-pointer" id="admin-nav-item" style="display:none" onclick="showPage('admin')">
+        <span class="material-symbols-outlined">shield</span>
+        <span class="font-label-md text-label-md">Admin</span>
+      </a>
+    </nav>
+    <div class="mt-auto px-lg pt-xl space-y-sm">
+      <div class="pt-xl border-t border-outline-variant/30">
+        <a class="flex items-center gap-md text-on-surface-variant px-sm py-xs font-label-md hover:text-secondary cursor-pointer" onclick="toggleSettings()">
+          <span class="material-symbols-outlined text-[20px]">settings</span> Settings
+        </a>
+        <a class="flex items-center gap-md text-on-surface-variant px-sm py-xs font-label-md hover:text-secondary cursor-pointer" onclick="signOut()">
+          <span class="material-symbols-outlined text-[20px]">logout</span> Logout
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content area -->
+  <main class="flex-1 p-lg lg:p-xl">
+
+    <!-- ── HOME ── -->
+    <div class="app-page active" id="page-home">
+      <!-- Stats row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-lg mb-xl" id="stats-row"></div>
+      <!-- Two-col layout -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-xl">
+        <div class="xl:col-span-8 space-y-xl">
+          <!-- Today's tasks preview -->
+          <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg relative overflow-hidden">
+            <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+            <div class="flex justify-between items-center mb-lg mt-xs">
+              <h2 class="font-headline-lg text-xl text-on-surface">Today's Tasks</h2>
+              <button onclick="showPage('tasks')" class="font-label-md text-label-md text-secondary hover:underline">See all →</button>
+            </div>
+            <div id="home-tasks"></div>
+          </div>
+          <!-- Projects bento preview -->
+          <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg relative overflow-hidden">
+            <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+            <div class="flex justify-between items-center mb-lg mt-xs">
+              <h2 class="font-headline-lg text-xl text-on-surface">Active Projects</h2>
+              <button onclick="showPage('projects')" class="font-label-md text-label-md text-secondary hover:underline">View all →</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg" id="home-projects"></div>
+          </div>
+        </div>
+        <div class="xl:col-span-4 space-y-xl">
+          <!-- Upcoming events -->
+          <div class="bg-surface-container-high border border-outline-variant/50 rounded-xl p-lg">
+            <h2 class="font-headline-lg text-xl text-on-surface mb-lg">Upcoming</h2>
+            <div id="home-events"></div>
+          </div>
+          <!-- Goals -->
+          <div class="bg-surface-container-high border border-outline-variant/50 rounded-xl p-lg">
+            <h2 class="font-headline-lg text-xl text-on-surface mb-lg">Goals</h2>
+            <div id="home-goals"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TASKS ── -->
+    <div class="app-page" id="page-tasks">
+      <div class="flex justify-between items-end mb-xl">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-on-surface">Tasks</h1>
+          <p class="font-body-md text-on-surface-variant">Manage your to-dos and recurring work.</p>
+        </div>
+      </div>
+      <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg relative overflow-hidden">
+        <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+        <div class="mt-xs" id="tasks-list"></div>
+        <div class="mt-lg flex flex-wrap gap-md pt-lg border-t border-outline-variant/20">
+          <input id="task-input" placeholder="New task…" onkeydown="if(event.key==='Enter')addTask()" class="flex-1 min-w-[160px] bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-body-md outline-none focus:border-primary">
+          <select id="task-tag" class="bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-label-md outline-none focus:border-primary">
+            <option value="uni">uni</option><option value="proj">project</option><option value="personal">personal</option><option value="health">health</option>
+          </select>
+          <input id="task-due" type="date" class="bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-label-md outline-none focus:border-primary">
+          <select id="task-recur" class="bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-label-md outline-none focus:border-primary">
+            <option value="none">once</option><option value="daily">daily</option><option value="weekly">weekly</option><option value="monthly">monthly</option>
+          </select>
+          <button onclick="addTask()" class="bg-primary text-on-primary font-label-md px-lg py-sm rounded hover:opacity-90 transition-opacity">Add task</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CALENDAR ── -->
+    <div class="app-page" id="page-calendar">
+      <div class="flex justify-between items-end mb-xl">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-on-surface">Calendar</h1>
+          <p class="font-body-md text-on-surface-variant">Your personal schedule.</p>
+        </div>
+        <button onclick="openEventModal()" class="bg-primary text-on-primary font-label-md px-lg py-sm rounded hover:opacity-90">+ Event</button>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-xl" id="cal-grid-wrapper">
+        <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg relative overflow-hidden">
+          <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+          <div class="flex items-center justify-between mb-lg mt-xs">
+            <button onclick="changeMonth(-1)" class="material-symbols-outlined text-on-surface-variant hover:text-primary p-xs rounded transition-colors">chevron_left</button>
+            <span class="font-headline-lg text-xl text-on-surface" id="cal-month-label"></span>
+            <button onclick="changeMonth(1)" class="material-symbols-outlined text-on-surface-variant hover:text-primary p-xs rounded transition-colors">chevron_right</button>
+          </div>
+          <div class="grid grid-cols-7 gap-xs" id="cal-grid"></div>
+        </div>
+        <div class="bg-surface-container-high border border-outline-variant/50 rounded-xl p-lg">
+          <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-lg" id="cal-sel-label">This month</h3>
+          <div id="event-list" class="space-y-sm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTES ── -->
+    <div class="app-page" id="page-notes">
+      <div class="flex justify-between items-end mb-xl">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-on-surface">Notes</h1>
+          <p class="font-body-md text-on-surface-variant">Capture ideas and thoughts.</p>
+        </div>
+        <button onclick="openNoteModal()" class="bg-primary text-on-primary font-label-md px-lg py-sm rounded hover:opacity-90">+ Note</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg" id="notes-grid"></div>
+    </div>
+
+    <!-- ── GOALS ── -->
+    <div class="app-page" id="page-goals">
+      <div class="flex justify-between items-end mb-xl">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-on-surface">Habits & Goals</h1>
+          <p class="font-body-md text-on-surface-variant">Track your streaks and progress.</p>
+        </div>
+        <button onclick="openGoalModal()" class="bg-primary text-on-primary font-label-md px-lg py-sm rounded hover:opacity-90">+ Goal</button>
+      </div>
+      <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg relative overflow-hidden">
+        <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+        <div class="mt-xs" id="goals-list"></div>
+      </div>
+    </div>
+
+    <!-- ── PROJECTS ── -->
+    <div class="app-page" id="page-projects">
+      <div class="flex justify-between items-end mb-xl">
+        <div>
+          <h1 class="font-headline-lg text-headline-lg text-on-surface">Active Portfolio</h1>
+          <p class="font-body-md text-on-surface-variant">Manage your creative flows and delivery timelines.</p>
+        </div>
+        <button onclick="openProjectModal()" class="bg-primary text-on-primary font-label-md px-lg py-sm rounded hover:opacity-90 bloom-hover">+ Project</button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-lg" id="projects-grid"></div>
+    </div>
+
+    <!-- ── ADMIN ── -->
+    <div class="app-page" id="page-admin">
+      <h1 class="font-headline-lg text-headline-lg text-on-surface mb-xl">Admin</h1>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-xl">
+        <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg">
+          <div class="flex justify-between items-center mb-lg">
+            <h2 class="font-headline-lg text-xl text-on-surface">📢 Announcements</h2>
+            <button onclick="openAnnounceModal()" class="font-label-md text-label-md text-secondary hover:underline">+ New</button>
+          </div>
+          <div id="admin-announce-list"></div>
+        </div>
+        <div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg">
+          <h2 class="font-headline-lg text-xl text-on-surface mb-lg">👥 Users</h2>
+          <div id="admin-user-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- end flex -->
+
+<!-- FAB -->
+<button onclick="showFabMenu()" class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all bloom-hover z-50">
+  <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">add</span>
+</button>
+
+</div><!-- end #main-app -->
+
+<!-- ══════════════════════════════════════
+     SETTINGS PANEL
+══════════════════════════════════════ -->
+<div id="settings-panel" class="fixed top-0 right-0 bottom-0 w-80 bg-surface-container border-l border-outline-variant/50 z-90 flex flex-col" style="transform:translateX(100%);transition:transform .25s;z-index:95">
+  <div class="flex items-center justify-between p-lg border-b border-outline-variant/30">
+    <h2 class="font-headline-lg text-xl text-on-surface">Personalize</h2>
+    <button onclick="toggleSettings()" class="material-symbols-outlined text-on-surface-variant hover:text-primary">close</button>
+  </div>
+  <div class="flex-1 overflow-y-auto p-lg space-y-xl custom-scrollbar">
+    <div>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Profile picture</p>
+      <div class="flex items-center gap-md">
+        <div id="settings-pfp" onclick="document.getElementById('pfp-input').click()" class="w-14 h-14 rounded-full bg-secondary-container/30 border border-outline-variant cursor-pointer overflow-hidden flex items-center justify-center font-headline-lg text-secondary text-xl"></div>
+        <div class="space-y-xs">
+          <button onclick="document.getElementById('pfp-input').click()" class="block font-label-sm text-label-sm text-secondary hover:underline">Upload photo</button>
+          <button onclick="clearPfp()" class="block font-label-sm text-label-sm text-on-surface-variant hover:underline">Remove</button>
+        </div>
+      </div>
+      <input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpUpload(event)">
+    </div>
+    <div>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Display name</p>
+      <input id="s-name" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-body-md outline-none focus:border-primary" placeholder="Hunter" maxlength="24">
+    </div>
+    <div>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">App name</p>
+      <input id="s-appname" class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-body-md outline-none focus:border-primary" placeholder="icarus" maxlength="16">
+    </div>
+    <div>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Sync status</p>
+      <div class="flex items-center gap-sm bg-surface-container-lowest border border-outline-variant/30 rounded px-md py-sm">
+        <span class="sync-dot" id="settings-sync-dot"></span>
+        <span class="font-label-sm text-on-surface-variant" id="settings-sync-text">Connected</span>
+      </div>
+    </div>
+    <div>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Home sections</p>
+      <div class="space-y-sm">
+        <div class="flex items-center justify-between"><span class="font-body-md text-on-surface-variant">Stats bar</span><input type="checkbox" id="t-stats" checked class="accent-primary"></div>
+        <div class="flex items-center justify-between"><span class="font-body-md text-on-surface-variant">Tasks</span><input type="checkbox" id="t-tasks" checked class="accent-primary"></div>
+        <div class="flex items-center justify-between"><span class="font-body-md text-on-surface-variant">Events</span><input type="checkbox" id="t-events" checked class="accent-primary"></div>
+        <div class="flex items-center justify-between"><span class="font-body-md text-on-surface-variant">Goals</span><input type="checkbox" id="t-goals" checked class="accent-primary"></div>
+      </div>
+    </div>
+  </div>
+  <div class="p-lg border-t border-outline-variant/30">
+    <button onclick="saveSettings()" class="w-full bg-primary text-on-primary font-label-md py-md rounded hover:opacity-90 transition-opacity">Save changes</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CLAUDE PANEL
+══════════════════════════════════════ -->
+<div id="claude-panel">
+  <div class="p-lg border-b border-outline-variant/30 flex items-center justify-between flex-shrink-0">
+    <div class="flex items-center gap-sm">
+      <span class="w-2 h-2 rounded-full bg-primary"></span>
+      <span class="font-headline-lg text-xl text-on-surface">Claude</span>
+    </div>
+    <button onclick="toggleClaude()" class="material-symbols-outlined text-on-surface-variant hover:text-primary">close</button>
+  </div>
+  <div class="claude-msgs" id="claude-msgs">
+    <div class="msg-ai">Hey! Add tasks, events, notes, or goals by typing naturally. For deeper help I'll open Claude.ai with your full context.</div>
+  </div>
+  <div class="flex gap-sm flex-wrap p-md border-t border-outline-variant/20">
+    <button onclick="fillPrompt('What should I focus on today?')" class="font-label-sm text-[11px] bg-surface-container-high border border-outline-variant/50 rounded-full px-sm py-xs text-on-surface-variant hover:border-primary hover:text-primary transition-colors">Focus today</button>
+    <button onclick="fillPrompt('Summarize my week')" class="font-label-sm text-[11px] bg-surface-container-high border border-outline-variant/50 rounded-full px-sm py-xs text-on-surface-variant hover:border-primary hover:text-primary transition-colors">Week summary</button>
+    <button onclick="fillPrompt('open claude.ai')" class="font-label-sm text-[11px] bg-surface-container-high border border-outline-variant/50 rounded-full px-sm py-xs text-on-surface-variant hover:border-primary hover:text-primary transition-colors">Full chat ↗</button>
+  </div>
+  <div class="p-lg border-t border-outline-variant/30 flex gap-sm flex-shrink-0">
+    <textarea id="claude-input" rows="1" placeholder="Ask or add anything…" class="flex-1 bg-surface-container-lowest border border-outline-variant/50 rounded px-md py-sm text-on-surface font-body-md outline-none focus:border-primary resize-none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendClaude()}"></textarea>
+    <button onclick="sendClaude()" class="bg-primary text-on-primary rounded px-md py-sm font-label-md hover:opacity-90">Send</button>
+  </div>
+</div>
+
+<!-- Pomodoro widget -->
+<div id="pomo-widget">
+  <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest text-center mb-sm">Pomodoro</div>
+  <div class="font-display-lg text-4xl text-on-surface text-center font-light" style="font-family:'JetBrains Mono',monospace" id="pomo-time">25:00</div>
+  <div class="font-label-sm text-on-surface-variant text-center mt-xs" id="pomo-mode">Focus</div>
+  <div class="flex gap-sm justify-center mt-md">
+    <button id="pomo-start-btn" onclick="pomoToggle()" class="bg-primary text-on-primary font-label-md px-md py-xs rounded hover:opacity-90">Start</button>
+    <button onclick="pomoReset()" class="bg-surface-container-high border border-outline-variant font-label-md px-md py-xs rounded hover:bg-surface-container-highest text-on-surface-variant">Reset</button>
+  </div>
+  <div class="font-label-sm text-on-surface-variant text-center mt-sm" id="pomo-sessions">Session 1 of 4</div>
+  <button onclick="togglePomo()" class="absolute top-sm right-sm material-symbols-outlined text-on-surface-variant text-[16px] hover:text-primary" style="position:absolute;top:8px;right:8px">close</button>
+</div>
+
+<!-- Toast -->
+<div id="toast-bar"></div>
+
+<!-- Modal -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-box" id="modal-body"></div></div>
+
+<script>
+// ── Supabase config (hard-coded) ──────────────────────────────────────────
+const HARDCODED_CFG={url:'https://tfsawkogkpqhrsixpvcq.supabase.co',key:'sb_publishable_Oyd2c76wSo14L0SUCS2Yqw_9A-MGXwi'};
+const WIPE_VERSION='wipe_v1';
+const LS='myflow_v4', LS_CFG='myflow_cfg4';
+let D, CFG=HARDCODED_CFG, syncMode=true, syncTimer=null, currentPage='home';
+let currentUser=null, allUsers=[];
+
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS))||null;}catch(e){return null;}}
+function saveLocal(d){localStorage.setItem(LS,JSON.stringify(d));}
+function defaultData(name,username){
+  return {
+    profile:{name:name||'',username:username||'',appname:'icarus',pfp:'',sections:{stats:true,tasks:true,events:true,goals:true}},
+    tasks:[],events:[],notes:[],goals:[],projects:[],
+  };
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────
+function uid(){return Math.random().toString(36).slice(2,10);}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtDate(d){if(!d)return '';const[y,m,day]=d.split('-');return `${parseInt(day)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]}`;}
+function isOverdue(d){return d&&d<today();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── Supabase ──────────────────────────────────────────────────────────────
+function setSyncUI(state){
+  const dot=document.getElementById('sync-dot');
+  const lbl=document.getElementById('sync-label');
+  const sdot=document.getElementById('settings-sync-dot');
+  const stxt=document.getElementById('settings-sync-text');
+  [dot,sdot].forEach(d=>{if(d)d.className='sync-dot';});
+  if(state==='synced'){[dot,sdot].forEach(d=>{if(d)d.classList.add('synced')});if(lbl)lbl.textContent='Synced';if(stxt)stxt.textContent='Connected & synced';}
+  else if(state==='syncing'){[dot,sdot].forEach(d=>{if(d)d.classList.add('syncing')});if(lbl)lbl.textContent='Syncing…';if(stxt)stxt.textContent='Syncing…';}
+  else if(state==='error'){[dot,sdot].forEach(d=>{if(d)d.classList.add('error')});if(lbl)lbl.textContent='Error';if(stxt)stxt.textContent='Sync error';}
+  else{if(lbl)lbl.textContent='Local';if(stxt)stxt.textContent='Not connected';}
+}
+async function sbFetch(path,opts={}){
+  const url=CFG.url.replace(/\/$/,'')+path;
+  const res=await fetch(url,{...opts,headers:{'Content-Type':'application/json','apikey':CFG.key,'Authorization':'Bearer '+CFG.key,...(opts.headers||{})}});
+  if(!res.ok){const t=await res.text();throw new Error(t);}
+  if(res.status===204||res.headers.get('content-length')==='0')return {};
+  return res.json();
+}
+async function pushToSupabase(){
+  if(!syncMode||!currentUser)return;
+  setSyncUI('syncing');
+  try{
+    await sbFetch('/rest/v1/myflow?id=eq.user_'+currentUser.id,{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({data:D,updated_at:new Date().toISOString()})});
+    setSyncUI('synced');
+  }catch(e){setSyncUI('error');console.error('Sync push error',e);}
+}
+async function pullFromSupabase(){
+  if(!syncMode||!currentUser)return;
+  setSyncUI('syncing');
+  try{
+    const rows=await sbFetch('/rest/v1/myflow?id=eq.user_'+currentUser.id+'&select=data');
+    if(rows&&rows[0]&&rows[0].data&&Object.keys(rows[0].data).length>0){D=rows[0].data;saveLocal(D);}
+    setSyncUI('synced');
+  }catch(e){setSyncUI('error');console.error('Sync pull error',e);}
+}
+function schedSave(){saveLocal(D);if(!syncMode)return;clearTimeout(syncTimer);syncTimer=setTimeout(pushToSupabase,1200);}
+async function manualSync(){
+  if(!currentUser)return;
+  await pullFromSupabase();renderPage(currentPage);showToast('Pulled latest data!');
+}
+function startPolling(){setInterval(async()=>{if(syncMode&&currentUser)await pullFromSupabase();},30000);}
+
+// ── One-time wipe ─────────────────────────────────────────────────────────
+async function runOneTimeWipeIfNeeded(){
+  if(localStorage.getItem(WIPE_VERSION)==='done')return;
+  try{
+    const existing=await sbFetch('/rest/v1/icarus_users?select=id&limit=1');
+    if(existing&&existing.length>0){localStorage.setItem(WIPE_VERSION,'done');return;}
+  }catch(e){}
+  try{await sbFetch('/rest/v1/myflow?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}});}catch(e){}
+  try{await sbFetch('/rest/v1/icarus_users?id=neq.NONE_MATCH',{method:'DELETE',headers:{'Prefer':'return=minimal'}});}catch(e){}
+  localStorage.removeItem(LS);
+  localStorage.setItem(WIPE_VERSION,'done');
+}
+
+// ── Apply settings ────────────────────────────────────────────────────────
+function applySettings(){
+  if(!D)return;
+  const p=D.profile||{};
+  const app=p.appname||'icarus';
+  document.title=app;
+  const logoEl=document.getElementById('nav-logo');
+  if(logoEl)logoEl.textContent=app;
+  const avatarInner=document.getElementById('nav-avatar-inner');
+  if(avatarInner){
+    if(p.pfp){document.getElementById('nav-avatar').innerHTML=`<img src="${p.pfp}" class="w-full h-full object-cover">`;}
+    else{avatarInner.textContent=(p.name||'?')[0].toUpperCase();}
+  }
+  const sidebarUser=document.getElementById('sidebar-user');
+  if(sidebarUser)sidebarUser.textContent=p.name||'—';
+  // Sections
+  const sec=p.sections||{};
+  const sr=document.getElementById('stats-row');if(sr)sr.style.display=sec.stats===false?'none':'';
+  const htc=document.getElementById('home-tasks')?.closest('.bg-surface-container');
+  // settings pfp
+  const spfp=document.getElementById('settings-pfp');
+  if(spfp){if(p.pfp)spfp.innerHTML=`<img src="${p.pfp}" class="w-full h-full object-cover">`;else spfp.textContent=(p.name||'?')[0].toUpperCase();}
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+async function hashPw(pw){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function loadUsers(){
+  try{const rows=await sbFetch('/rest/v1/icarus_users?select=id,username,display_name,avatar');allUsers=rows||[];}
+  catch(e){allUsers=[];}
+}
+
+// ── Lock screen ───────────────────────────────────────────────────────────
+async function showLockScreen(){
+  document.getElementById('lock-screen').classList.remove('hidden');
+  document.getElementById('main-app').classList.add('hidden');
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`<div class="text-center text-on-surface-variant font-label-md py-xl">Loading…</div>`;
+  await runOneTimeWipeIfNeeded();
+  await loadUsers();
+  renderUserPicker();
+}
+
+function renderUserPicker(){
+  const content=document.getElementById('lock-content');
+  if(allUsers.length===0){showRegisterScreen();return;}
+  const cards=allUsers.map(u=>`
+    <button onclick="showPasswordScreen('${u.id}','${esc(u.username)}','${esc(u.display_name||u.username)}')"
+      class="group relative flex flex-col items-center p-md transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-xl">
+      <div class="relative w-32 h-32 mb-md">
+        <div class="motif-4-stripe absolute -top-1 left-0 right-0 rounded-t-full"></div>
+        <div class="w-full h-full rounded-full border-2 border-outline-variant overflow-hidden group-hover:border-primary transition-colors bloom-hover">
+          ${u.avatar?`<img src="${esc(u.avatar)}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">`
+            :`<div class="w-full h-full bg-secondary-container/30 flex items-center justify-center font-display-lg text-4xl text-secondary">${(u.display_name||u.username)[0].toUpperCase()}</div>`}
+        </div>
+      </div>
+      <span class="font-headline-lg-mobile text-on-surface group-hover:text-primary transition-colors">${esc(u.display_name||u.username)}</span>
+    </button>`).join('');
+  content.innerHTML=`
+    <h2 class="font-headline-lg-mobile md:font-headline-lg text-on-surface mb-lg text-center">Welcome back. Who is focusing today?</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-lg w-full max-w-4xl mx-auto mb-xl">${cards}</div>
+    <div class="flex justify-center">
+      <button onclick="showRegisterScreen()" class="font-label-md text-label-md text-secondary border border-secondary/30 px-lg py-sm rounded hover:bg-secondary-container/10 transition-colors">+ Create new account</button>
+    </div>`;
+}
+
+function showPasswordScreen(userId,username,displayName){
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`
+    <div class="max-w-sm mx-auto text-center">
+      <h2 class="font-headline-lg text-on-surface mb-xs">Welcome back, ${esc(displayName)}</h2>
+      <p class="font-body-md text-on-surface-variant mb-xl">Enter your password to continue.</p>
+      <input class="w-full bg-surface-container border border-outline-variant/50 rounded px-lg py-md text-on-surface font-body-md outline-none focus:border-primary mb-md" type="password" id="pw-in" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitLogin('${userId}','${esc(username)}','${esc(displayName)}')">
+      <div class="text-error font-label-sm mb-md" id="lock-err"></div>
+      <button onclick="submitLogin('${userId}','${esc(username)}','${esc(displayName)}')" class="w-full bg-primary text-on-primary font-label-md py-md rounded hover:opacity-90 mb-md">Unlock →</button>
+      <button onclick="renderUserPicker()" class="font-label-sm text-on-surface-variant hover:text-secondary transition-colors">← Back</button>
+    </div>`;
+  setTimeout(()=>{const el=document.getElementById('pw-in');if(el)el.focus();},80);
+}
+
+async function submitLogin(userId,username,displayName){
+  const val=document.getElementById('pw-in').value;
+  const err=document.getElementById('lock-err');
+  if(!val){err.textContent='Enter your password.';return;}
+  err.textContent='Checking…';
+  try{
+    const hash=await hashPw(val);
+    const rows=await sbFetch('/rest/v1/icarus_users?id=eq.'+userId+'&select=pw_hash');
+    if(!rows||!rows[0]){err.textContent='User not found.';return;}
+    if(rows[0].pw_hash===hash){currentUser={id:userId,username,displayName};unlockApp();}
+    else{err.textContent='Wrong password.';document.getElementById('pw-in').value='';document.getElementById('pw-in').focus();}
+  }catch(e){err.textContent='Connection error.';}
+}
+
+// ── Onboarding (register) ─────────────────────────────────────────────────
+let obData={name:'',username:'',pwHash:'',pfpBase64:''};
+
+function showRegisterScreen(){
+  obData={name:'',username:'',pwHash:'',pfpBase64:''};
+  showObStep1();
+}
+
+function _obSteps(active){
+  return `<div class="flex justify-center gap-sm mb-xl">${[0,1,2].map(i=>`<div style="width:${i===active?24:8}px;height:8px;border-radius:4px;background:${i<=active?'#add199':'#43483f'};transition:all .25s"></div>`).join('')}</div>`;
+}
+
+function showObStep1(){
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`
+    <div class="max-w-sm mx-auto">
+      ${_obSteps(0)}
+      <h2 class="font-display-lg text-3xl text-primary text-center mb-xs" style="font-family:'Literata',serif;font-style:italic">Join Icarus</h2>
+      <p class="font-body-md text-on-surface-variant text-center mb-xl">No email needed. Pick a name and password.</p>
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-xs">Display name</p>
+      <input class="w-full bg-surface-container border border-outline-variant/50 rounded px-lg py-md text-on-surface font-body-md outline-none focus:border-primary mb-md" type="text" id="reg-name" placeholder="Your name" maxlength="32" value="${esc(obData.name)}">
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-xs">Username</p>
+      <input class="w-full bg-surface-container border border-outline-variant/50 rounded px-lg py-md text-on-surface font-body-md outline-none focus:border-primary mb-md" type="text" id="reg-user" placeholder="lowercase, no spaces" maxlength="20" value="${esc(obData.username)}">
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-xs">Password</p>
+      <input class="w-full bg-surface-container border border-outline-variant/50 rounded px-lg py-md text-on-surface font-body-md outline-none focus:border-primary mb-md" type="password" id="reg-pw-a" placeholder="Choose a password" autocomplete="new-password">
+      <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-xs">Confirm password</p>
+      <input class="w-full bg-surface-container border border-outline-variant/50 rounded px-lg py-md text-on-surface font-body-md outline-none focus:border-primary mb-md" type="password" id="reg-pw-b" placeholder="Repeat it" autocomplete="new-password" onkeydown="if(event.key==='Enter')obStep1Next()">
+      <div class="text-error font-label-sm mb-md" id="lock-err"></div>
+      <button onclick="obStep1Next()" class="w-full bg-primary text-on-primary font-label-md py-md rounded hover:opacity-90 mb-sm">Continue →</button>
+      ${allUsers.length>0?'<button onclick="renderUserPicker()" class="w-full font-label-sm text-on-surface-variant hover:text-secondary transition-colors py-sm">← Back to login</button>':''}
+    </div>`;
+  setTimeout(()=>{const el=document.getElementById('reg-name');if(el)el.focus();},80);
+}
+
+async function obStep1Next(){
+  const name=document.getElementById('reg-name').value.trim();
+  const rawUser=document.getElementById('reg-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const pwA=document.getElementById('reg-pw-a').value;
+  const pwB=document.getElementById('reg-pw-b').value;
+  const err=document.getElementById('lock-err');
+  if(!name){err.textContent='Enter a display name.';return;}
+  if(rawUser.length<2){err.textContent='Username must be at least 2 chars.';return;}
+  if(pwA.length<4){err.textContent='Password must be at least 4 characters.';return;}
+  if(pwA!==pwB){err.textContent='Passwords do not match.';return;}
+  if(allUsers.some(u=>u.username===rawUser)){err.textContent='Username already taken.';return;}
+  obData.name=name;obData.username=rawUser;obData.pwHash=await hashPw(pwA);
+  showObStep2();
+}
+
+function showObStep2(){
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`
+    <div class="max-w-sm mx-auto text-center">
+      ${_obSteps(1)}
+      <h2 class="font-display-lg text-3xl text-primary mb-xs" style="font-family:'Literata',serif;font-style:italic">Add a photo</h2>
+      <p class="font-body-md text-on-surface-variant mb-xl">Optional — put a face to the name.</p>
+      <div id="ob-pfp-preview" onclick="document.getElementById('ob-pfp-input').click()" class="w-24 h-24 rounded-full border-2 border-outline-variant bg-secondary-container/30 flex items-center justify-center font-display-lg text-4xl text-secondary cursor-pointer overflow-hidden mx-auto mb-md hover:border-primary transition-colors">
+        ${obData.pfpBase64?`<img src="${obData.pfpBase64}" class="w-full h-full object-cover">`:(obData.name||'?')[0].toUpperCase()}
+      </div>
+      <input type="file" id="ob-pfp-input" accept="image/*" style="display:none" onchange="obHandlePfp(event)">
+      <div class="flex gap-sm justify-center mb-xl">
+        <button onclick="document.getElementById('ob-pfp-input').click()" class="font-label-sm text-secondary border border-secondary/30 px-md py-xs rounded hover:bg-secondary-container/10">Upload</button>
+        ${obData.pfpBase64?`<button onclick="obData.pfpBase64='';showObStep2()" class="font-label-sm text-on-surface-variant border border-outline-variant/30 px-md py-xs rounded hover:bg-surface-container">Remove</button>`:''}
+      </div>
+      <button onclick="showObStep3()" class="w-full bg-primary text-on-primary font-label-md py-md rounded hover:opacity-90 mb-sm">Continue →</button>
+      <button onclick="showObStep3()" class="w-full font-label-sm text-on-surface-variant py-sm hover:text-secondary transition-colors">Skip for now</button>
+      <button onclick="showObStep1()" class="w-full font-label-sm text-on-surface-variant py-xs hover:text-secondary transition-colors">← Back</button>
+    </div>`;
+}
+
+function obHandlePfp(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{obData.pfpBase64=e.target.result;showObStep2();};
+  r.readAsDataURL(f);ev.target.value='';
+}
+
+function showObStep3(){
+  const content=document.getElementById('lock-content');
+  content.innerHTML=`
+    <div class="max-w-sm mx-auto text-center">
+      ${_obSteps(2)}
+      <h2 class="font-display-lg text-3xl text-primary mb-xs" style="font-family:'Literata',serif;font-style:italic">Almost there</h2>
+      <p class="font-body-md text-on-surface-variant mb-xl">Review your choices and create your account.</p>
+      <div class="bg-surface-container border border-outline-variant/30 rounded-xl p-lg mb-xl text-left space-y-sm">
+        <div class="flex justify-between"><span class="font-label-md text-on-surface-variant">Name</span><span class="font-body-md text-on-surface">${esc(obData.name)}</span></div>
+        <div class="flex justify-between"><span class="font-label-md text-on-surface-variant">Username</span><span class="font-body-md text-secondary">@${esc(obData.username)}</span></div>
+        <div class="flex justify-between"><span class="font-label-md text-on-surface-variant">Photo</span><span class="font-body-md text-on-surface">${obData.pfpBase64?'Uploaded ✓':'None'}</span></div>
+      </div>
+      <div class="text-error font-label-sm mb-md" id="lock-err"></div>
+      <button onclick="submitRegister()" class="w-full bg-primary text-on-primary font-label-md py-md rounded hover:opacity-90 mb-sm bloom-hover">Create my account →</button>
+      <button onclick="showObStep2()" class="w-full font-label-sm text-on-surface-variant py-sm hover:text-secondary transition-colors">← Back</button>
+    </div>`;
+}
+
+async function submitRegister(){
+  const btn=document.querySelector('#lock-content .bg-primary');
+  if(btn){btn.disabled=true;btn.textContent='Creating your space…';}
+  try{
+    const newId=uid();
+    await sbFetch('/rest/v1/icarus_users',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:newId,username:obData.username,display_name:obData.name,pw_hash:obData.pwHash,avatar:obData.pfpBase64||''})});
+    const freshD=defaultData(obData.name,'@'+obData.username);
+    freshD.profile.pfp=obData.pfpBase64||'';
+    await sbFetch('/rest/v1/myflow',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:'user_'+newId,data:freshD,updated_at:new Date().toISOString()})});
+    currentUser={id:newId,username:obData.username,displayName:obData.name};
+    D=freshD;saveLocal(D);
+    showWelcome();
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Create my account →';}
+    const err=document.getElementById('lock-err');
+    if(err){err.textContent='Error: '+e.message;}
+  }
+}
+
+function showWelcome(){
+  const content=document.getElementById('lock-content');
+  const firstName=obData.name.split(' ')[0];
+  content.innerHTML=`
+    <div class="text-center py-xl">
+      ${obData.pfpBase64?`<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-primary mx-auto mb-lg"><img src="${obData.pfpBase64}" class="w-full h-full object-cover"></div>`:`<div class="w-20 h-20 rounded-full bg-secondary-container/30 border-2 border-primary mx-auto mb-lg flex items-center justify-center font-display-lg text-4xl text-primary">${firstName[0].toUpperCase()}</div>`}
+      <div class="font-display-lg text-6xl text-primary mb-md" style="font-family:'Literata',serif;font-style:italic;letter-spacing:-0.02em"><span style="font-style:normal;font-weight:700">I</span>carus</div>
+      <h2 class="font-headline-lg text-on-surface mb-sm">Welcome, ${esc(firstName)}.</h2>
+      <p class="font-body-md text-on-surface-variant mb-xl" style="font-family:'Literata',serif;font-style:italic">Your dashboard is ready.<br>The sky is yours to navigate.</p>
+      <p class="font-label-sm text-on-surface-variant uppercase tracking-widest mb-xl opacity-60">tasks · goals · notes · calendar</p>
+      <button onclick="unlockApp()" class="bg-primary text-on-primary font-headline-lg-mobile px-xl py-md rounded hover:opacity-90 bloom-hover" style="font-family:'Literata',serif;font-style:italic">Enter Icarus →</button>
+    </div>`;
+}
+
+function unlockApp(){
+  document.getElementById('lock-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  finishSetup();
+}
+
+function finishSetup(){
+  pullFromSupabase().then(()=>{
+    applySettings();renderHome();renderCalendar();setSyncUI('synced');startPolling();
+    setupAdminUI();checkAnnouncements();
+    setTimeout(checkReminders,2000);
+  });
+  saveLocal(D);
+}
+
+function signOut(){
+  if(!confirm('Sign out?'))return;
+  currentUser=null;D=defaultData();saveLocal(D);
+  localStorage.removeItem(LS);
+  document.getElementById('main-app').classList.add('hidden');
+  showLockScreen();
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────
+let settingsOpen=false;
+function toggleSettings(){
+  settingsOpen=!settingsOpen;
+  const p=document.getElementById('settings-panel');
+  if(settingsOpen){
+    p.style.transform='translateX(0)';
+    if(D&&D.profile){
+      document.getElementById('s-name').value=D.profile.name||'';
+      document.getElementById('s-appname').value=D.profile.appname||'icarus';
+      const sec=D.profile.sections||{};
+      ['stats','tasks','events','goals'].forEach(k=>{const b=document.getElementById('t-'+k);if(b)b.checked=sec[k]!==false;});
+    }
+  } else {
+    p.style.transform='translateX(100%)';
+  }
+}
+function handlePfpUpload(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{D.profile.pfp=e.target.result;const pfpEl=document.getElementById('settings-pfp');if(pfpEl)pfpEl.innerHTML=`<img src="${e.target.result}" class="w-full h-full object-cover">`;applySettings();};
+  r.readAsDataURL(f);ev.target.value='';
+}
+function clearPfp(){D.profile.pfp='';const pfpEl=document.getElementById('settings-pfp');if(pfpEl)pfpEl.textContent=(D.profile.name||'?')[0].toUpperCase();applySettings();}
+function saveSettings(){
+  if(!D.profile)D.profile={};
+  D.profile.name=document.getElementById('s-name').value.trim()||'Hunter';
+  D.profile.appname=document.getElementById('s-appname').value.trim()||'icarus';
+  const sec={};
+  ['stats','tasks','events','goals'].forEach(k=>{const b=document.getElementById('t-'+k);sec[k]=b?b.checked:true;});
+  D.profile.sections=sec;
+  schedSave();applySettings();toggleSettings();showToast('Settings saved!');renderHome();
+}
+
+// ── Admin ─────────────────────────────────────────────────────────────────
+const ADMIN_USERNAME='hunter';
+function isAdmin(){return currentUser&&currentUser.username===ADMIN_USERNAME;}
+function setupAdminUI(){const nav=document.getElementById('admin-nav-item');if(nav)nav.style.display=isAdmin()?'flex':'none';}
+async function renderAdminPage(){await renderAdminAnnouncements();await renderAdminUsers();}
+async function renderAdminAnnouncements(){
+  const list=document.getElementById('admin-announce-list');if(!list)return;
+  list.innerHTML='<p class="font-body-md text-on-surface-variant">Loading…</p>';
+  try{
+    const rows=await sbFetch('/rest/v1/icarus_announcements?order=created_at.desc&select=*');
+    if(!rows||rows.length===0){list.innerHTML='<p class="font-body-md text-on-surface-variant opacity-70">No announcements yet.</p>';return;}
+    list.innerHTML=rows.map(a=>{
+      const isAll=a.target==='all';
+      const targetLabel=isAll?'Everyone':(allUsers.find(u=>u.id===a.target)||{display_name:'?'}).display_name;
+      return `<div class="flex items-start gap-md py-md border-b border-outline-variant/20">
+        <div class="flex-1"><p class="font-body-md text-on-surface">${esc(a.message)}</p><p class="font-label-sm text-on-surface-variant mt-xs">${new Date(a.created_at).toLocaleDateString()} · to: ${esc(targetLabel)}</p></div>
+        <span class="font-label-sm px-sm py-xs rounded ${isAll?'bg-primary/20 text-primary':'bg-tertiary/20 text-tertiary'}">${esc(isAll?'all':targetLabel)}</span>
+        <button onclick="deleteAnnouncement('${a.id}')" class="material-symbols-outlined text-on-surface-variant hover:text-error text-[16px]">close</button>
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<p class="font-body-md text-error">Error loading.</p>';}
+}
+async function renderAdminUsers(){
+  const list=document.getElementById('admin-user-list');if(!list)return;
+  list.innerHTML=allUsers.map(u=>`
+    <div class="flex items-center gap-md py-sm border-b border-outline-variant/20">
+      <div class="w-8 h-8 rounded-full bg-secondary-container/30 border border-outline-variant overflow-hidden flex items-center justify-center font-label-md text-secondary">${u.avatar?`<img src="${esc(u.avatar)}" class="w-full h-full object-cover">`:(u.display_name||u.username)[0].toUpperCase()}</div>
+      <div class="flex-1"><span class="font-body-md text-on-surface">${esc(u.display_name||u.username)}</span> <span class="font-label-sm text-on-surface-variant">@${esc(u.username)}</span></div>
+      ${u.username===ADMIN_USERNAME?'<span class="font-label-sm text-tertiary border border-tertiary/30 px-sm py-xs rounded">admin</span>':''}
+    </div>`).join('')||'<p class="font-body-md text-on-surface-variant opacity-70">No users.</p>';
+}
+function openAnnounceModal(){
+  const userOptions=allUsers.map(u=>`<option value="${u.id}">${esc(u.display_name||u.username)}</option>`).join('');
+  showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">New announcement</div>
+    <textarea id="m-ann" style="min-height:100px" placeholder="Write your announcement…"></textarea>
+    <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm">Send to</div>
+    <select id="m-ann-target"><option value="all">Everyone</option>${userOptions}</select>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="sendAnnouncement()">Send</button></div>`);
+}
+async function sendAnnouncement(){
+  const msg=document.getElementById('m-ann').value.trim();const target=document.getElementById('m-ann-target').value;
+  if(!msg)return;
+  try{await sbFetch('/rest/v1/icarus_announcements',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({id:uid(),message:msg,target,created_by:currentUser.id,created_at:new Date().toISOString(),dismissed_by:[]})});closeModal();showToast('Announcement sent!');renderAdminAnnouncements();}
+  catch(e){showToast('Error sending announcement.');}
+}
+async function deleteAnnouncement(id){
+  try{await sbFetch('/rest/v1/icarus_announcements?id=eq.'+id,{method:'DELETE'});renderAdminAnnouncements();showToast('Deleted.');}
+  catch(e){showToast('Error deleting.');}
+}
+async function checkAnnouncements(){
+  if(!currentUser)return;
+  try{
+    const rows=await sbFetch('/rest/v1/icarus_announcements?order=created_at.desc&select=*');
+    if(!rows||rows.length===0)return;
+    const relevant=rows.filter(a=>{
+      if(a.target!=='all'&&a.target!==currentUser.id)return false;
+      return !(a.dismissed_by||[]).includes(currentUser.id);
+    });
+    if(relevant.length===0)return;
+    const latest=relevant[0];
+    const bar=document.getElementById('announce-bar');const txt=document.getElementById('announce-text');
+    if(bar&&txt){txt.textContent=latest.message+(relevant.length>1?' ('+relevant.length+' announcements)':'');bar.style.display='flex';bar.dataset.announceId=latest.id;}
+  }catch(e){}
+}
+async function dismissAnnounce(){
+  const bar=document.getElementById('announce-bar');if(!bar)return;bar.style.display='none';
+  const id=bar.dataset.announceId;
+  if(id&&currentUser){
+    try{const rows=await sbFetch('/rest/v1/icarus_announcements?id=eq.'+id+'&select=dismissed_by');
+      if(rows&&rows[0]){const d=[...(rows[0].dismissed_by||[]),currentUser.id];await sbFetch('/rest/v1/icarus_announcements?id=eq.'+id,{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({dismissed_by:d})});}
+    }catch(e){}
+  }
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function showPage(name){
+  currentPage=name;
+  document.querySelectorAll('.app-page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  const titleEl=document.getElementById('sidebar-title');
+  if(titleEl)titleEl.textContent={home:'Dashboard',tasks:'Tasks',calendar:'Calendar',notes:'Notes',goals:'Goals',projects:'Projects',admin:'Admin'}[name]||'Dashboard';
+  if(name==='home')renderHome();
+  else if(name==='tasks')renderTasks();
+  else if(name==='calendar')renderCalendar();
+  else if(name==='notes')renderNotes();
+  else if(name==='goals')renderGoals();
+  else if(name==='projects')renderProjects();
+  else if(name==='admin')renderAdminPage();
+}
+function renderPage(n){showPage(n);}
+
+// ── Home ──────────────────────────────────────────────────────────────────
+function renderHome(){
+  if(!D)return;
+  const pending=D.tasks.filter(t=>!t.done);
+  const done=D.tasks.filter(t=>t.done).length;
+  const upcoming=D.events.filter(e=>(e.endDate||e.date)>=today()).sort((a,b)=>a.date.localeCompare(b.date));
+  const streak=D.goals.length?Math.max(...D.goals.map(g=>g.streak)):0;
+  // Stats
+  const sr=document.getElementById('stats-row');
+  if(sr)sr.innerHTML=[
+    {label:'Tasks pending',val:pending.length,sub:`${done} done`},
+    {label:'Events ahead',val:upcoming.length,sub:'upcoming'},
+    {label:'Best streak',val:streak,sub:'days',accent:true},
+    {label:'Notes saved',val:D.notes.length,sub:'total'},
+  ].map(s=>`<div class="bg-surface-container border border-outline-variant/30 rounded-lg p-lg relative overflow-hidden">
+    <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+    <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-xs">${s.label}</p>
+    <p class="font-display-lg text-4xl font-light mt-sm ${s.accent?'text-primary':'text-on-surface'}" style="font-family:'Literata',serif">${s.val}</p>
+    <p class="font-label-sm text-on-surface-variant mt-xs opacity-70">${s.sub}</p>
+  </div>`).join('');
+  // Home tasks
+  const ht=document.getElementById('home-tasks');
+  if(ht)ht.innerHTML=D.tasks.slice(0,5).map(t=>taskHTML(t,true)).join('')||'<p class="font-body-md text-on-surface-variant opacity-70 py-sm">No tasks yet.</p>';
+  // Home projects
+  const hp=document.getElementById('home-projects');
+  if(hp)hp.innerHTML=D.projects.slice(0,4).map(p=>projectCardHTML(p)).join('')||'<p class="font-body-md text-on-surface-variant opacity-70 py-sm">No projects yet.</p>';
+  // Home events
+  const he=document.getElementById('home-events');
+  if(he)he.innerHTML=upcoming.slice(0,4).map(e=>`
+    <div class="flex items-center gap-md py-sm border-b border-outline-variant/20 last:border-0">
+      <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${e.color||'#add199'}"></div>
+      <span class="font-body-md text-on-surface flex-1 truncate">${esc(e.title)}</span>
+      <span class="font-label-sm text-on-surface-variant">${fmtDate(e.date)}</span>
+    </div>`).join('')||'<p class="font-body-md text-on-surface-variant opacity-70">Nothing coming up.</p>';
+  // Home goals
+  const hg=document.getElementById('home-goals');
+  if(hg)hg.innerHTML=D.goals.map(g=>`
+    <div class="py-sm">
+      <div class="flex justify-between mb-xs"><span class="font-body-md text-on-surface">${esc(g.name)}</span><span class="font-label-sm text-on-surface-variant">${g.progress}%</span></div>
+      <div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${g.progress}%;background:${g.color}"></div></div>
+      <p class="font-label-sm text-on-surface-variant mt-xs">streak: ${g.streak}d</p>
+    </div>`).join('')||'<p class="font-body-md text-on-surface-variant opacity-70">No goals yet.</p>';
+  applySettings();
+}
+
+// ── Tasks ─────────────────────────────────────────────────────────────────
+function nextDueDate(due,recur){
+  if(!due||!recur||recur==='none')return '';
+  const d=new Date(due+'T00:00:00');
+  if(recur==='daily')d.setDate(d.getDate()+1);
+  else if(recur==='weekly')d.setDate(d.getDate()+7);
+  else if(recur==='monthly')d.setMonth(d.getMonth()+1);
+  return d.toISOString().split('T')[0];
+}
+const TAG_COLORS={uni:'bg-secondary-container/30 text-secondary border-secondary/20',proj:'bg-primary-container/20 text-primary border-primary/20',personal:'bg-tertiary-container/20 text-tertiary border-tertiary/20',health:'bg-primary/10 text-primary-fixed-dim border-primary/20'};
+function taskHTML(t,compact){
+  return `<div class="group flex items-start gap-md py-sm border-b border-outline-variant/20 last:border-0">
+    <button onclick="toggleTask('${t.id}')" class="mt-1 w-5 h-5 border-2 border-outline-variant/50 rounded flex items-center justify-center hover:border-secondary transition-colors flex-shrink-0 ${t.done?'bg-primary border-primary':''}" style="${t.done?'background:#add199;border-color:#add199':''}">
+      ${t.done?'<span class="material-symbols-outlined text-[14px] text-on-primary" style="font-variation-settings:\'FILL\' 1">check</span>':''}
+    </button>
+    <div class="flex-1 min-w-0">
+      <p class="font-body-md text-on-surface ${t.done?'line-through opacity-50':''}">${esc(t.text)}</p>
+      <div class="flex flex-wrap gap-sm mt-xs">
+        <span class="font-label-sm text-label-sm px-sm py-[2px] border rounded ${TAG_COLORS[t.tag]||TAG_COLORS.personal}">${t.tag}</span>
+        ${t.due?`<span class="font-label-sm text-label-sm ${isOverdue(t.due)&&!t.done?'text-error':'text-on-surface-variant'} flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">calendar_today</span>${fmtDate(t.due)}</span>`:''}
+        ${t.recur&&t.recur!=='none'?`<span class="font-label-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">repeat</span>${t.recur}</span>`:''}
+      </div>
+    </div>
+    ${compact?'':`<button onclick="deleteTask('${t.id}')" class="material-symbols-outlined text-on-surface-variant hover:text-error text-[18px] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">close</button>`}
+  </div>`;
+}
+function renderTasks(){document.getElementById('tasks-list').innerHTML=D.tasks.map(t=>taskHTML(t,false)).join('')||'<p class="font-body-md text-on-surface-variant opacity-70 py-sm">No tasks yet.</p>';}
+function addTask(){
+  const txt=document.getElementById('task-input').value.trim();if(!txt)return;
+  D.tasks.unshift({id:uid(),text:txt,tag:document.getElementById('task-tag').value,due:document.getElementById('task-due').value,recur:document.getElementById('task-recur').value,done:false});
+  document.getElementById('task-input').value='';document.getElementById('task-due').value='';document.getElementById('task-recur').value='none';
+  schedSave();renderTasks();
+}
+function toggleTask(id){
+  const t=D.tasks.find(t=>t.id===id);if(!t)return;
+  if(t.recur&&t.recur!=='none'&&!t.done){t.done=true;const next=nextDueDate(t.due,t.recur);D.tasks.unshift({id:uid(),text:t.text,tag:t.tag,due:next,recur:t.recur,done:false});}
+  else{t.done=!t.done;}
+  schedSave();renderTasks();
+}
+function deleteTask(id){D.tasks=D.tasks.filter(t=>t.id!==id);schedSave();renderTasks();}
+
+// ── Calendar ──────────────────────────────────────────────────────────────
+const MONTHS_L=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let calMonth=new Date().getMonth(),calYear=new Date().getFullYear(),selDay=null;
+function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function eventCoversDay(e,ds){
+  const start=e.date,end=e.endDate||e.date;
+  if(ds<start||ds>end)return false;
+  if(e.days&&e.days.length>0){const dow=new Date(ds+'T00:00:00').getDay();const mapped=dow===0?6:dow-1;return e.days.includes(mapped);}
+  return true;
+}
+function renderCalendar(){
+  if(!D)return;
+  const lbl=document.getElementById('cal-month-label');if(lbl)lbl.textContent=`${MONTHS_L[calMonth]} ${calYear}`;
+  const first=new Date(calYear,calMonth,1);let dow=first.getDay();if(dow===0)dow=7;
+  const dim=new Date(calYear,calMonth+1,0).getDate(),prev=new Date(calYear,calMonth,0).getDate(),td=today();
+  const DAYS=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  let h=DAYS.map(x=>`<div class="font-label-sm text-on-surface-variant text-center py-xs text-[10px] uppercase tracking-widest">${x}</div>`).join('');
+  for(let i=dow-1;i>0;i--)h+=`<div class="text-center py-sm text-on-surface-variant/30 font-body-md text-sm">${prev-i+1}</div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const eventsOnDay=D.events.filter(e=>eventCoversDay(e,ds));
+    const isToday=ds===td,isSel=ds===selDay;
+    h+=`<div onclick="selCalDay('${ds}')" class="relative text-center py-sm font-body-md text-sm cursor-pointer rounded transition-all
+      ${isToday?'bg-primary/20 text-primary font-bold':isSel?'bg-secondary text-on-secondary font-bold':'text-on-surface hover:bg-surface-container-high'}">
+      ${d}${eventsOnDay.length>0?`<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${isToday||isSel?'bg-on-primary':'bg-primary'}"></div>`:''}
+    </div>`;
+  }
+  const grid=document.getElementById('cal-grid');if(grid)grid.innerHTML=h;
+  renderEventList();
+}
+function selCalDay(ds){selDay=ds;const lbl=document.getElementById('cal-sel-label');if(lbl)lbl.textContent=`Events — ${fmtDate(ds)}`;renderCalendar();}
+function renderEventList(){
+  if(!D)return;
+  const monthStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const evts=selDay?D.events.filter(e=>eventCoversDay(e,selDay)):D.events.filter(e=>e.date.startsWith(monthStr)||(e.endDate&&e.endDate>=monthStr+'-01'&&e.date<=monthStr+'-31')).sort((a,b)=>a.date.localeCompare(b.date));
+  const el=document.getElementById('event-list');
+  if(!el)return;
+  el.innerHTML=evts.map(e=>`
+    <div class="group flex items-center gap-md py-sm border-b border-outline-variant/20 last:border-0">
+      <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${e.color||'#add199'}"></div>
+      <div class="flex-1 min-w-0">
+        <p class="font-body-md text-on-surface truncate">${esc(e.title)}</p>
+        <p class="font-label-sm text-on-surface-variant">${e.endDate&&e.endDate!==e.date?fmtDate(e.date)+' → '+fmtDate(e.endDate):e.time||fmtDate(e.date)}</p>
+      </div>
+      <button onclick="deleteEvent('${e.id}')" class="material-symbols-outlined text-on-surface-variant hover:text-error text-[16px] opacity-0 group-hover:opacity-100">close</button>
+    </div>`).join('')||`<p class="font-body-md text-on-surface-variant opacity-70">No events${selDay?' here':' this month'}.</p>`;
+}
+function deleteEvent(id){D.events=D.events.filter(e=>e.id!==id);schedSave();renderCalendar();}
+
+// ── Notes ─────────────────────────────────────────────────────────────────
+function renderNotes(){
+  const grid=document.getElementById('notes-grid');if(!grid||!D)return;
+  grid.innerHTML=D.notes.map(n=>`
+    <div onclick="openNoteEditor('${n.id}')" class="group relative bg-surface-container border border-outline-variant/30 rounded-lg p-lg cursor-pointer hover:scale-[1.02] hover:border-primary/40 transition-all overflow-hidden">
+      <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+      <div class="cherry-blossom-watermark"></div>
+      <h3 class="font-headline-lg-mobile text-on-surface mb-sm mt-xs">${esc(n.title)}</h3>
+      <p class="font-body-md text-on-surface-variant line-clamp-3 opacity-70">${esc(n.body)}</p>
+      <p class="font-label-sm text-on-surface-variant mt-md opacity-50">${fmtDate(n.created)}</p>
+      <button onclick="event.stopPropagation();deleteNote('${n.id}')" class="absolute top-sm right-sm material-symbols-outlined text-on-surface-variant hover:text-error text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">close</button>
+    </div>`).join('')||'<p class="font-body-md text-on-surface-variant opacity-70">No notes yet.</p>';
+}
+function deleteNote(id){D.notes=D.notes.filter(n=>n.id!==id);schedSave();renderNotes();}
+function openNoteEditor(id){const n=D.notes.find(n=>n.id===id);if(!n)return;showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">Edit note</div><input id="m-nt" value="${esc(n.title)}"><textarea id="m-nb" style="min-height:160px">${esc(n.body)}</textarea><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveNote('${n.id}')">Save</button></div>`);}
+function saveNote(id){const n=D.notes.find(n=>n.id===id);if(n){n.title=document.getElementById('m-nt').value.trim()||'Untitled';n.body=document.getElementById('m-nb').value.trim();schedSave();renderNotes();closeModal();}}
+
+// ── Goals ─────────────────────────────────────────────────────────────────
+function renderGoals(){
+  const el=document.getElementById('goals-list');if(!el||!D)return;
+  el.innerHTML=D.goals.map(g=>`
+    <div class="py-md border-b border-outline-variant/20 last:border-0">
+      <div class="flex justify-between mb-sm"><span class="font-body-lg text-on-surface font-medium">${esc(g.name)}</span><span class="font-label-md text-on-surface-variant">${g.progress}%</span></div>
+      <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden mb-sm"><div class="h-full rounded-full transition-all duration-500" style="width:${g.progress}%;background:${g.color}"></div></div>
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[14px]">local_fire_department</span>streak: ${g.streak} days</span>
+        <div class="flex gap-sm">
+          <button onclick="checkGoal('${g.id}')" class="font-label-sm text-label-sm px-sm py-xs rounded border transition-colors ${g.lastChecked===today()?'bg-primary/20 text-primary border-primary/30':'border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary'}">${g.lastChecked===today()?'Done ✓':'Mark done'}</button>
+          <button onclick="editGoalPct('${g.id}')" class="font-label-sm text-label-sm px-sm py-xs rounded border border-outline-variant/50 text-on-surface-variant hover:border-secondary hover:text-secondary transition-colors">Edit %</button>
+          <button onclick="deleteGoal('${g.id}')" class="material-symbols-outlined text-on-surface-variant hover:text-error text-[16px]">delete</button>
+        </div>
+      </div>
+    </div>`).join('')||'<p class="font-body-md text-on-surface-variant opacity-70 py-sm">No goals yet.</p>';
+}
+function checkGoal(id){const g=D.goals.find(g=>g.id===id);if(!g||g.lastChecked===today())return;g.lastChecked=today();g.streak++;g.progress=Math.min(100,g.progress+5);schedSave();renderGoals();}
+function editGoalPct(id){const g=D.goals.find(g=>g.id===id);if(!g)return;showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">Edit — ${esc(g.name)}</div><input id="m-gp" type="number" min="0" max="100" value="${g.progress}" placeholder="Progress %"><input id="m-gs" type="number" value="${g.streak}" placeholder="Streak days"><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveGoalPct('${id}')">Save</button></div>`);}
+function saveGoalPct(id){const g=D.goals.find(g=>g.id===id);if(g){g.progress=Math.min(100,Math.max(0,parseInt(document.getElementById('m-gp').value)||0));g.streak=parseInt(document.getElementById('m-gs').value)||0;schedSave();renderGoals();closeModal();}}
+function deleteGoal(id){D.goals=D.goals.filter(g=>g.id!==id);schedSave();renderGoals();}
+
+// ── Projects ──────────────────────────────────────────────────────────────
+const STATUS_LABELS={active:'bg-secondary-container/30 text-secondary border-secondary/20',paused:'bg-tertiary-container/20 text-tertiary border-tertiary/20',done:'bg-primary/20 text-primary border-primary/20'};
+function projectCardHTML(p){
+  return `<div class="group relative bg-surface-container-low border border-outline-variant/30 rounded-lg overflow-hidden transition-all hover:scale-[1.01] hover:border-primary/40 p-lg">
+    <div class="stripe-motif absolute top-0 left-0 right-0"></div>
+    <div class="cherry-blossom-watermark"></div>
+    <div class="flex justify-between items-start mb-md mt-xs">
+      <span class="font-label-sm text-label-sm px-sm py-[2px] border rounded uppercase tracking-wider ${STATUS_LABELS[p.status]||STATUS_LABELS.active}">${p.status}</span>
+      <button onclick="deleteProject('${p.id}')" class="material-symbols-outlined text-on-surface-variant hover:text-error text-[20px] opacity-0 group-hover:opacity-100 transition-opacity">more_vert</button>
+    </div>
+    <h3 class="font-headline-lg text-2xl text-on-surface mb-sm">${esc(p.name)}</h3>
+    <p class="font-body-md text-on-surface-variant mb-xl line-clamp-2 opacity-70">${esc(p.desc)}</p>
+    <div class="mb-xl">
+      <div class="flex justify-between items-center mb-xs">
+        <span class="font-label-sm text-on-surface-variant">PROGRESS</span>
+        <span class="font-label-sm text-primary">${p.progress}%</span>
+      </div>
+      <div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+        <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width:${p.progress}%"></div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderProjects(){
+  const grid=document.getElementById('projects-grid');if(!grid||!D)return;
+  grid.innerHTML=D.projects.map(p=>projectCardHTML(p)).join('')||'<p class="font-body-md text-on-surface-variant opacity-70">No projects yet.</p>';
+}
+function deleteProject(id){D.projects=D.projects.filter(p=>p.id!==id);schedSave();renderProjects();}
+
+// ── Modals ────────────────────────────────────────────────────────────────
+function showModal(h){document.getElementById('modal-body').innerHTML=h;document.getElementById('modal-overlay').classList.add('open');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+let _evDays=new Set();
+function _toggleEvDay(d,el){if(_evDays.has(d)){_evDays.delete(d);el.classList.remove('bg-primary','text-on-primary');el.classList.add('bg-surface-container-high','text-on-surface-variant');}else{_evDays.add(d);el.classList.add('bg-primary','text-on-primary');el.classList.remove('bg-surface-container-high','text-on-surface-variant');}}
+function openEventModal(){
+  _evDays=new Set();
+  const dayNames=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  const dayPills=dayNames.map((d,i)=>`<button type="button" onclick="_toggleEvDay(${i},this)" class="font-label-sm px-sm py-xs rounded border border-outline-variant/50 bg-surface-container-high text-on-surface-variant hover:border-primary transition-colors">${d}</button>`).join('');
+  showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">New event</div>
+    <input id="m-et" placeholder="Event title">
+    <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-sm mt-sm">Repeats on days (optional)</div>
+    <div class="flex gap-sm flex-wrap mb-lg">${dayPills}</div>
+    <div class="modal-row">
+      <div class="flex-1"><div class="font-label-sm text-on-surface-variant mb-xs">Start date</div><input id="m-ed" type="date" value="${today()}" style="width:100%"></div>
+      <div class="flex-1"><div class="font-label-sm text-on-surface-variant mb-xs">End date <span class="opacity-50">(opt)</span></div><input id="m-ed2" type="date" style="width:100%"></div>
+    </div>
+    <input id="m-eim" type="time" value="10:00">
+    <select id="m-ec"><option value="#add199">Green (primary)</option><option value="#9dcdec">Blue (secondary)</option><option value="#f3be5a">Amber</option><option value="#ffb4ab">Red</option><option value="#2dd4bf">Teal</option></select>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addEvent()">Add</button></div>`);
+}
+function addEvent(){
+  const t=document.getElementById('m-et').value.trim();if(!t)return;
+  const startDate=document.getElementById('m-ed').value,endDate=document.getElementById('m-ed2').value;
+  D.events.push({id:uid(),title:t,date:startDate,endDate:endDate&&endDate>startDate?endDate:startDate,days:_evDays.size>0?Array.from(_evDays).sort():[],time:document.getElementById('m-eim').value,color:document.getElementById('m-ec').value});
+  schedSave();closeModal();renderCalendar();
+}
+function openNoteModal(){showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">New note</div><input id="m-nt" placeholder="Title"><textarea id="m-nb" style="min-height:120px" placeholder="Write anything…"></textarea><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addNote()">Save</button></div>`);}
+function addNote(){const t=document.getElementById('m-nt').value.trim()||'Untitled';const b=document.getElementById('m-nb').value.trim();D.notes.unshift({id:uid(),title:t,body:b,created:today()});schedSave();closeModal();renderNotes();}
+function openGoalModal(){showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">New goal</div><input id="m-gn" placeholder="Goal name"><select id="m-gc"><option value="#add199">Green</option><option value="#9dcdec">Blue</option><option value="#f3be5a">Amber</option><option value="#2dd4bf">Teal</option><option value="#ffb4ab">Red</option></select><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addGoal()">Add</button></div>`);}
+function addGoal(){const n=document.getElementById('m-gn').value.trim();if(!n)return;D.goals.push({id:uid(),name:n,color:document.getElementById('m-gc').value,progress:0,streak:0,lastChecked:''});schedSave();closeModal();renderGoals();}
+function openProjectModal(){showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">New project</div><input id="m-pn" placeholder="Project name"><textarea id="m-pd" placeholder="Short description"></textarea><div class="modal-row"><select id="m-ps"><option value="active">Active</option><option value="paused">Paused</option><option value="done">Done</option></select><input id="m-pp" type="number" min="0" max="100" value="0" placeholder="Progress %"></div><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="addProject()">Add</button></div>`);}
+function addProject(){const n=document.getElementById('m-pn').value.trim();if(!n)return;D.projects.push({id:uid(),name:n,desc:document.getElementById('m-pd').value.trim(),status:document.getElementById('m-ps').value,progress:Math.min(100,Math.max(0,parseInt(document.getElementById('m-pp').value)||0))});schedSave();closeModal();renderProjects();}
+
+// FAB menu
+function showFabMenu(){
+  showModal(`<div class="font-headline-lg text-xl text-on-surface mb-lg">Quick add</div>
+    <div class="grid grid-cols-2 gap-md">
+      <button onclick="closeModal();openEventModal()" class="bg-surface-container-high border border-outline-variant/50 rounded-lg p-lg flex flex-col items-center gap-sm hover:border-primary transition-colors">
+        <span class="material-symbols-outlined text-primary text-3xl">event</span>
+        <span class="font-label-md text-on-surface">Event</span>
+      </button>
+      <button onclick="closeModal();showPage('tasks')" class="bg-surface-container-high border border-outline-variant/50 rounded-lg p-lg flex flex-col items-center gap-sm hover:border-primary transition-colors">
+        <span class="material-symbols-outlined text-secondary text-3xl">checklist</span>
+        <span class="font-label-md text-on-surface">Task</span>
+      </button>
+      <button onclick="closeModal();openNoteModal()" class="bg-surface-container-high border border-outline-variant/50 rounded-lg p-lg flex flex-col items-center gap-sm hover:border-primary transition-colors">
+        <span class="material-symbols-outlined text-tertiary text-3xl">note_stack</span>
+        <span class="font-label-md text-on-surface">Note</span>
+      </button>
+      <button onclick="closeModal();openProjectModal()" class="bg-surface-container-high border border-outline-variant/50 rounded-lg p-lg flex flex-col items-center gap-sm hover:border-primary transition-colors">
+        <span class="material-symbols-outlined text-primary text-3xl">folder_open</span>
+        <span class="font-label-md text-on-surface">Project</span>
+      </button>
+    </div>
+    <div class="modal-footer mt-lg"><button class="btn-cancel" onclick="closeModal()">Cancel</button></div>`);
+}
+
+// ── Pomodoro ──────────────────────────────────────────────────────────────
+let pomoOpen=false,pomoRunning=false,pomoInterval=null,pomoSecs=25*60,pomoSession=1,pomoIsBreak=false;
+const POMO_WORK=25*60,POMO_BREAK=5*60;
+function togglePomo(){pomoOpen=!pomoOpen;document.getElementById('pomo-widget').classList.toggle('open',pomoOpen);}
+function playPomoChime(isBreak){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const notes=isBreak?[523,659,784]:[784,659,523];notes.forEach((freq,i)=>{const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=freq;const t=ctx.currentTime+i*0.18;gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(0.18,t+0.04);gain.gain.exponentialRampToValueAtTime(0.001,t+0.45);osc.start(t);osc.stop(t+0.45);});}catch(e){}}
+function pomoTick(){pomoSecs--;if(pomoSecs<0){clearInterval(pomoInterval);pomoRunning=false;if(!pomoIsBreak){playPomoChime(true);pomoSession++;pomoIsBreak=true;pomoSecs=POMO_BREAK;showToast('Break time! 5 minutes.');}else{playPomoChime(false);pomoIsBreak=false;pomoSecs=POMO_WORK;showToast('Back to focus!');}document.getElementById('pomo-start-btn').textContent='Start';}updatePomoUI();}
+function pomoToggle(){if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;document.getElementById('pomo-start-btn').textContent='Resume';}else{pomoInterval=setInterval(pomoTick,1000);pomoRunning=true;document.getElementById('pomo-start-btn').textContent='Pause';}}
+function pomoReset(){clearInterval(pomoInterval);pomoRunning=false;pomoSecs=POMO_WORK;pomoIsBreak=false;document.getElementById('pomo-start-btn').textContent='Start';updatePomoUI();}
+function updatePomoUI(){const m=Math.floor(pomoSecs/60),s=pomoSecs%60;document.getElementById('pomo-time').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;document.getElementById('pomo-mode').textContent=pomoIsBreak?'Break':'Focus';document.getElementById('pomo-sessions').textContent=`Session ${pomoSession} of 4`;}
+
+// ── Claude ────────────────────────────────────────────────────────────────
+let claudeOpen=false;
+function toggleClaude(){claudeOpen=!claudeOpen;document.getElementById('claude-panel').classList.toggle('open',claudeOpen);}
+function fillPrompt(t){document.getElementById('claude-input').value=t;document.getElementById('claude-input').focus();}
+function sendClaude(){
+  const inp=document.getElementById('claude-input');const text=inp.value.trim();if(!text)return;inp.value='';
+  appendMsg(text,'user');const lower=text.toLowerCase();
+  if(lower.includes('open claude')||lower.includes('claude.ai')){appendMsg('Opening Claude.ai with your context!','ai');window.open(`https://claude.ai/new?q=${encodeURIComponent('My dashboard:\n'+buildCtx()+'\n\n'+text)}`,'_blank');return;}
+  if(/^(add task|new task|task:)/i.test(text)){const txt=text.replace(/^(add task|new task|task:)\s*/i,'').trim();if(txt){D.tasks.unshift({id:uid(),text:txt,tag:'personal',due:'',recur:'none',done:false});schedSave();appendMsg(`Added: "${txt}"`, 'ai');if(currentPage==='tasks')renderTasks();return;}}
+  if(/^(add event|new event|event:)/i.test(text)){appendMsg('Opening event form!','ai');if(currentPage!=='calendar')showPage('calendar');setTimeout(openEventModal,300);return;}
+  if(/^(add note|new note|note:)/i.test(text)){appendMsg('Opening note editor!','ai');if(currentPage!=='notes')showPage('notes');setTimeout(openNoteModal,300);return;}
+  if(lower.includes('pomodoro')||lower.includes('timer')){appendMsg('Opening your Pomodoro timer!','ai');if(!pomoOpen)togglePomo();return;}
+  if(lower.includes('focus')||lower.includes('priorities')){const p=D.tasks.filter(t=>!t.done).slice(0,3).map(t=>`• ${t.text}`).join('\n');appendMsg(`Top pending:\n${p||'All clear!'}`,'ai');return;}
+  appendMsg('Sending to Claude.ai with your full context!','ai');
+  window.open(`https://claude.ai/new?q=${encodeURIComponent('Dashboard:\n'+buildCtx()+'\n\n'+text)}`,'_blank');
+}
+function buildCtx(){return `TASKS:\n${D.tasks.filter(t=>!t.done).map(t=>`- ${t.text} [${t.tag}]${t.due?' due '+t.due:''}`).join('\n')||'none'}\nEVENTS:\n${D.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5).map(e=>`- ${e.title} on ${e.date}`).join('\n')||'none'}\nGOALS:\n${D.goals.map(g=>`- ${g.name}: ${g.progress}% (${g.streak}d streak)`).join('\n')||'none'}`;}
+function appendMsg(text,role){const msgs=document.getElementById('claude-msgs');const div=document.createElement('div');div.className=role==='user'?'msg-user':'msg-ai';div.textContent=text;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function showToast(msg){const t=document.getElementById('toast-bar');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4500);}
+
+// ── Reminders ─────────────────────────────────────────────────────────────
+function checkReminders(){
+  if(!D)return;
+  const soon=D.events.filter(e=>{if(!e.date)return false;const diff=(new Date(e.date)-new Date())/864e5;return diff>=0&&diff<=3;});
+  if(soon.length){const e=soon[0];const diff=Math.ceil((new Date(e.date)-new Date())/864e5);showToast(`"${e.title}" is ${diff===0?'today':diff===1?'tomorrow':'in '+diff+' days'}`);return;}
+  const ov=D.tasks.filter(t=>!t.done&&isOverdue(t.due));
+  if(ov.length)showToast(`${ov.length} overdue task${ov.length>1?'s':''}: "${ov[0].text}"`);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+window.addEventListener('resize',()=>{if(currentPage==='calendar')renderCalendar();});
+D=loadLocal()||defaultData();
+showLockScreen();
+setInterval(checkReminders,5*60*1000);
+</script>
 </body>
 </html>
